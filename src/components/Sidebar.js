@@ -29,6 +29,11 @@ export class Sidebar {
         icon: '👥'
       },
       { 
+        id: 'teachers', 
+        label: 'Professores', 
+        icon: '👨‍🏫'
+      },
+      { 
         id: 'periods', 
         label: 'Períodos Letivos', 
         icon: '📅'

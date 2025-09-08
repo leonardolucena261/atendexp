@@ -5,6 +5,7 @@ import { RoomManager } from './RoomManager.js';
 import { Dashboard } from './Dashboard.js';
 import { ClassManager } from './ClassManager.js';
 import { PeriodManager } from './PeriodManager.js';
+import { TeacherManager } from './TeacherManager.js';
 
 export class AdminSystem {
   constructor(dataManager) {
@@ -77,6 +78,9 @@ export class AdminSystem {
         break;
       case 'periods':
         component = new PeriodManager(this.dataManager);
+        break;
+      case 'teachers':
+        component = new TeacherManager(this.dataManager);
         break;
       default:
         component = new Dashboard(this.dataManager);

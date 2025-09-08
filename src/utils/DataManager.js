@@ -4,6 +4,7 @@ export class DataManager {
     this.rooms = this.loadRooms();
     this.classes = this.loadClasses();
     this.periods = this.loadPeriods();
+    this.teachers = this.loadTeachers();
   }
 
   // Building methods
@@ -141,6 +142,46 @@ export class DataManager {
     this.savePeriods();
   }
 
+  // Teacher methods
+  getTeachers() {
+    return this.teachers;
+  }
+
+  addTeacher(teacherData) {
+    const teacher = {
+      id: this.generateId(),
+      ...teacherData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.teachers.push(teacher);
+    this.saveTeachers();
+    return teacher;
+  }
+
+  updateTeacher(id, teacherData) {
+    const index = this.teachers.findIndex(t => t.id === id);
+    if (index !== -1) {
+      this.teachers[index] = { ...this.teachers[index], ...teacherData };
+      this.saveTeachers();
+    }
+  }
+
+  deleteTeacher(id) {
+    this.teachers = this.teachers.filter(t => t.id !== id);
+    // Remove teacher from classes
+    this.classes = this.classes.map(cls => ({
+      ...cls,
+      teacherId: cls.teacherId === id ? null : cls.teacherId
+    }));
+    this.saveTeachers();
+    this.saveClasses();
+  }
+
+  getClassesByTeacher(teacherId) {
+    return this.classes.filter(cls => cls.teacherId === teacherId);
+  }
+
   // Storage methods
   loadBuildings() {
     const stored = localStorage.getItem('cidade_saber_buildings');
@@ -176,6 +217,15 @@ export class DataManager {
 
   savePeriods() {
     localStorage.setItem('cidade_saber_periods', JSON.stringify(this.periods));
+  }
+
+  loadTeachers() {
+    const stored = localStorage.getItem('cidade_saber_teachers');
+    return stored ? JSON.parse(stored) : this.getDefaultTeachers();
+  }
+
+  saveTeachers() {
+    localStorage.setItem('cidade_saber_teachers', JSON.stringify(this.teachers));
   }
 
   // Default data
@@ -237,6 +287,7 @@ export class DataManager {
         name: 'Dança Contemporânea - Iniciante',
         periodId: '1',
         roomId: '3',
+        teacherId: '1',
         workload: 40,
         shift: 'Vespertino',
         startTime: '14:00',
@@ -250,6 +301,7 @@ export class DataManager {
         name: 'Matemática Básica',
         periodId: '1',
         roomId: '1',
+        teacherId: '2',
         workload: 60,
         shift: 'Matutino',
         startTime: '08:00',
@@ -280,6 +332,29 @@ export class DataManager {
         division: 'Semestral',
         startDate: `${currentYear}-08-01`,
         endDate: `${currentYear}-12-15`,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultTeachers() {
+    return [
+      {
+        id: '1',
+        name: 'Maria Silva',
+        email: 'maria.silva@cidadedosaber.com',
+        phone: '(11) 99999-1111',
+        specialty: 'Dança Contemporânea',
+        maxWorkload: 40,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: 'João Santos',
+        email: 'joao.santos@cidadedosaber.com',
+        phone: '(11) 99999-2222',
+        specialty: 'Matemática',
+        maxWorkload: 44,
         createdAt: new Date().toISOString()
       }
     ];

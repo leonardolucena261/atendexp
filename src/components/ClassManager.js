@@ -98,6 +98,7 @@ export class ClassManager {
     const room = this.dataManager.getRooms().find(r => r.id === classData.roomId);
     const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
     const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
+    const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
     
     const capacityPercentage = Math.min((classData.enrolledStudents / room.capacity) * 100, 100);
     let statusClass = 'normal';
@@ -131,6 +132,10 @@ export class ClassManager {
           <div class="class-detail">
             <span class="label">Local:</span>
             <span class="value">${room?.name || 'N/A'} - ${building?.name || 'N/A'}</span>
+          </div>
+          <div class="class-detail">
+            <span class="label">Professor:</span>
+            <span class="value">${teacher?.name || 'Não atribuído'}</span>
           </div>
           <div class="class-detail">
             <span class="label">Carga Horária:</span>
@@ -246,6 +251,7 @@ export class ClassManager {
     const periods = this.dataManager.getPeriods();
     const rooms = this.dataManager.getRooms();
     const buildings = this.dataManager.getBuildings();
+    const teachers = this.dataManager.getTeachers();
 
     const periodOptions = periods.map(period => 
       `<option value="${period.id}" ${classData?.periodId === period.id ? 'selected' : ''}>
@@ -259,6 +265,12 @@ export class ClassManager {
         ${room.name} - ${building?.name || 'N/A'}
       </option>`;
     }).join('');
+
+    const teacherOptions = teachers.map(teacher => 
+      `<option value="${teacher.id}" ${classData?.teacherId === teacher.id ? 'selected' : ''}>
+        ${teacher.name} - ${teacher.specialty}
+      </option>`
+    ).join('');
 
     const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
     const selectedDays = classData?.weekDays || [];
@@ -292,6 +304,14 @@ export class ClassManager {
               ${roomOptions}
             </select>
           </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="classTeacher">Professor</label>
+          <select id="classTeacher" required>
+            <option value="">Selecione o professor</option>
+            ${teacherOptions}
+          </select>
         </div>
         
         <div class="form-row">
@@ -438,6 +458,7 @@ export class ClassManager {
     const name = document.getElementById('className').value;
     const periodId = document.getElementById('classPeriod').value;
     const roomId = document.getElementById('classRoom').value;
+    const teacherId = document.getElementById('classTeacher').value;
     const workload = parseInt(document.getElementById('classWorkload').value);
     const shift = document.getElementById('classShift').value;
     const startTime = document.getElementById('classStartTime').value;
@@ -462,6 +483,7 @@ export class ClassManager {
       endTime,
       enrolledStudents,
       weekDays,
+      teacherId,
       createdAt: classId ? undefined : new Date().toISOString()
     };
 
@@ -469,6 +491,12 @@ export class ClassManager {
       this.dataManager.updateClass(classId, classData);
     } else {
       this.dataManager.addClass(classData);
+    }
+
+    // Validar conflito de horários do professor
+    if (this.hasTeacherScheduleConflict(teacherId, periodId, weekDays, startTime, endTime, classId)) {
+      alert('⚠️ Conflito de horário do professor detectado!\n\nO professor já possui uma turma no mesmo período letivo, horário e dia da semana.\n\nPor favor, escolha um horário vago ou outro professor.');
+      return;
     }
 
     this.renderContent();
@@ -495,6 +523,40 @@ export class ClassManager {
         
         // Verificar sobreposição: novo horário começa antes do existente terminar
         // E novo horário termina depois do existente começar
+        if (newStart < existingEnd && newEnd > existingStart) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+  hasTeacherScheduleConflict(teacherId, periodId, weekDays, startTime, endTime, excludeClassId = null) {
+    const teacherClasses = this.dataManager.getClassesByTeacher(teacherId);
+    
+    for (const existingClass of teacherClasses) {
+      // Pular a própria turma se estiver editando
+      if (excludeClassId && existingClass.id === excludeClassId) {
+        continue;
+      }
+      
+      // Verificar se é o mesmo período letivo
+      if (existingClass.periodId !== periodId) {
+        continue;
+      }
+      
+      // Verificar se há sobreposição de dias da semana
+      const hasCommonDay = weekDays.some(day => existingClass.weekDays.includes(day));
+      
+      if (hasCommonDay) {
+        // Verificar se há sobreposição de horários
+        const newStart = this.timeToMinutes(startTime);
+        const newEnd = this.timeToMinutes(endTime);
+        const existingStart = this.timeToMinutes(existingClass.startTime);
+        const existingEnd = this.timeToMinutes(existingClass.endTime);
+        
+        // Verificar sobreposição
         if (newStart < existingEnd && newEnd > existingStart) {
           return true;
         }
