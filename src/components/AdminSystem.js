@@ -6,6 +6,7 @@ import { Dashboard } from './Dashboard.js';
 import { ClassManager } from './ClassManager.js';
 import { PeriodManager } from './PeriodManager.js';
 import { TeacherManager } from './TeacherManager.js';
+import { TeacherScheduleView } from './TeacherScheduleView.js';
 
 export class AdminSystem {
   constructor(dataManager) {
@@ -81,6 +82,9 @@ export class AdminSystem {
         break;
       case 'teachers':
         component = new TeacherManager(this.dataManager);
+        break;
+      case 'teacher-schedules':
+        component = new TeacherScheduleView(this.dataManager);
         break;
       default:
         component = new Dashboard(this.dataManager);

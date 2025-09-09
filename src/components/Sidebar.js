@@ -31,7 +31,12 @@ export class Sidebar {
       { 
         id: 'teachers', 
         label: 'Professores', 
-        icon: '👨‍🏫'
+        icon: '👨‍🏫',
+        hasSubmenu: true,
+        submenu: [
+          { id: 'teachers-manage', label: 'Gerenciar Professores', icon: '👨‍🏫' },
+          { id: 'teacher-schedules', label: 'Horários dos Professores', icon: '📅' }
+        ]
       },
       { 
         id: 'periods', 
@@ -111,6 +116,10 @@ export class Sidebar {
             this.onNavigate('buildings');
           } else if (subItem.id === 'rooms') {
             this.onNavigate('rooms');
+          } else if (subItem.id === 'teachers-manage') {
+            this.onNavigate('teachers');
+          } else if (subItem.id === 'teacher-schedules') {
+            this.onNavigate('teacher-schedules');
           } else {
             this.onNavigate(subItem.id);
           }
@@ -185,6 +194,22 @@ export class Sidebar {
       }
       
       const activeItem = document.querySelector(`[data-view="${view}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    } else if (view === 'teachers' || view === 'teacher-schedules' || view === 'teachers-manage') {
+      // Expand teachers submenu
+      this.expandedMenus.add('teachers');
+      const submenu = document.getElementById('submenu-teachers');
+      const arrow = document.querySelector('[data-view="teachers"] .submenu-arrow');
+      if (submenu && arrow) {
+        submenu.classList.add('expanded');
+        arrow.style.transform = 'rotate(90deg)';
+      }
+      
+      // Activate the correct submenu item
+      const targetView = view === 'teachers' ? 'teachers-manage' : view;
+      const activeItem = document.querySelector(`[data-view="${targetView}"]`);
       if (activeItem) {
         activeItem.classList.add('active');
       }
