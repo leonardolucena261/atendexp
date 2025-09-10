@@ -78,6 +78,8 @@ export class ClassManager {
       });
     }
   }
+    // Add edit/delete listeners for each class
+    this.addClassEventListeners();
 
   renderClasses() {
     const classes = this.getFilteredClasses();
@@ -414,9 +416,6 @@ export class ClassManager {
     document.getElementById('cancelBtn').addEventListener('click', () => {
       modal.close();
     });
-
-    // Add edit/delete listeners for each class
-    this.addClassEventListeners();
   }
 
   addClassEventListeners() {
