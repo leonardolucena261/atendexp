@@ -78,9 +78,6 @@ export class ClassManager {
       });
     }
   }
-    // Add edit/delete listeners for each class
-    this.addClassEventListeners();
-
   renderClasses() {
     const classes = this.getFilteredClasses();
 
