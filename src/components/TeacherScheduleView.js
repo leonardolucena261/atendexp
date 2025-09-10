@@ -199,11 +199,18 @@ export class TeacherScheduleView {
   exportToPDF() {
     if (!this.selectedTeacher) return;
     
+    // Create a new window for PDF generation
+    const printWindow = window.open('', '_blank');
+    
+    // Check if popup was blocked
+    if (!printWindow) {
+      alert('Pop-up bloqueado! Por favor, permita pop-ups para este site e tente novamente.');
+      return;
+    }
+    
     const teacher = this.selectedTeacher;
     const classes = this.dataManager.getClasses().filter(c => c.teacherId === teacher.id);
     
-    // Create a new window for PDF generation
-    const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
