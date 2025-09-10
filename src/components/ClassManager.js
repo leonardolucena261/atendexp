@@ -77,6 +77,9 @@ export class ClassManager {
         this.renderContent();
       });
     }
+
+    // Add event listeners for class cards
+    this.addClassEventListeners();
   }
   renderClasses() {
     const classes = this.getFilteredClasses();
@@ -424,15 +427,15 @@ export class ClassManager {
         const deleteBtn = card.querySelector('.delete-btn');
         
         if (editBtn) {
-          editBtn.addEventListener('click', () => {
-            this.showClassModal(classItem);
-          });
+          editBtn.removeEventListener('click', this.handleEditClick);
+          this.handleEditClick = () => this.showClassModal(classItem);
+          editBtn.addEventListener('click', this.handleEditClick);
         }
         
         if (deleteBtn) {
-          deleteBtn.addEventListener('click', () => {
-            this.deleteClass(classItem.id);
-          });
+          deleteBtn.removeEventListener('click', this.handleDeleteClick);
+          this.handleDeleteClick = () => this.deleteClass(classItem.id);
+          deleteBtn.addEventListener('click', this.handleDeleteClick);
         }
       }
     });
