@@ -504,8 +504,16 @@ export class ClassManager {
       this.dataManager.addClass(classData);
     }
 
+    // Notificar atualização da escala de horários
+    this.notifyScheduleUpdate();
 
     this.renderContent();
+  }
+
+  notifyScheduleUpdate() {
+    // Disparar evento customizado para atualizar a visualização de horários
+    const event = new CustomEvent('scheduleUpdated');
+    document.dispatchEvent(event);
   }
 
   hasScheduleConflict(roomId, weekDays, startTime, endTime, excludeClassId = null) {

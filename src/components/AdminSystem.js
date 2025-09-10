@@ -85,6 +85,12 @@ export class AdminSystem {
         break;
       case 'teacher-schedules':
         component = new TeacherScheduleView(this.dataManager);
+        // Adicionar listener para atualização da escala
+        document.addEventListener('scheduleUpdated', () => {
+          if (component && typeof component.refreshSchedule === 'function') {
+            component.refreshSchedule();
+          }
+        });
         break;
       default:
         component = new Dashboard(this.dataManager);
