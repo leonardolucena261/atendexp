@@ -99,7 +99,6 @@ export class ClassManager {
     const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
     const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
     const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
-    const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
     
     const capacityPercentage = room ? Math.min((classData.enrolledStudents / room.capacity) * 100, 100) : 0;
     let statusClass = 'normal';

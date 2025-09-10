@@ -12,7 +12,6 @@ export class Dashboard {
     const classes = this.dataManager.getClasses();
     const periods = this.dataManager.getPeriods();
     const teachers = this.dataManager.getTeachers();
-    const teachers = this.dataManager.getTeachers();
 
     dashboard.innerHTML = `
       <div class="dashboard-header">
