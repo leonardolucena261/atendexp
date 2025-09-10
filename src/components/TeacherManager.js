@@ -61,7 +61,7 @@ export class TeacherManager {
 
   renderTeacherCard(teacher) {
     const classes = this.dataManager.getClassesByTeacher(teacher.id);
-    const currentWorkload = classes.reduce((total, cls) => total + cls.workload, 0);
+    const currentWorkload = classes.reduce((total, cls) => total + (cls.workload || 0), 0);
     const workloadPercentage = Math.min((currentWorkload / teacher.maxWorkload) * 100, 100);
     
     let workloadStatus = 'normal';
@@ -127,6 +127,8 @@ export class TeacherManager {
   showTeacherSchedule(teacher) {
     const classes = this.dataManager.getClassesByTeacher(teacher.id);
     const periods = this.dataManager.getPeriods();
+    const rooms = this.dataManager.getRooms();
+    const buildings = this.dataManager.getBuildings();
     
     // Group classes by period
     const classesByPeriod = {};
@@ -157,7 +159,7 @@ export class TeacherManager {
             ${classInSlot ? `
               <div class="class-info">
                 <div class="class-name">${classInSlot.name}</div>
-                <div class="class-room">${this.getRoomName(classInSlot.roomId)}</div>
+                <div class="class-room">${this.getRoomName(classInSlot.roomId, rooms, buildings)}</div>
               </div>
             ` : ''}
           </div>
@@ -233,9 +235,9 @@ export class TeacherManager {
     });
   }
 
-  getRoomName(roomId) {
-    const room = this.dataManager.getRooms().find(r => r.id === roomId);
-    const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
+  getRoomName(roomId, rooms, buildings) {
+    const room = rooms.find(r => r.id === roomId);
+    const building = buildings.find(b => b.id === room?.buildingId);
     return `${room?.name} - ${building?.name}`;
   }
 

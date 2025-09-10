@@ -74,7 +74,7 @@ export class TeacherScheduleView {
   renderTeacherSchedule(teacher) {
     const classes = this.dataManager.getClassesByTeacher(teacher.id);
     const periods = this.dataManager.getPeriods();
-    const currentWorkload = classes.reduce((total, cls) => total + cls.workload, 0);
+    const currentWorkload = classes.reduce((total, cls) => total + (cls.workload || 0), 0);
     const workloadPercentage = Math.min((currentWorkload / teacher.maxWorkload) * 100, 100);
     
     let workloadStatus = 'normal';
@@ -108,7 +108,7 @@ export class TeacherScheduleView {
             ${classInSlot ? `
               <div class="class-info">
                 <div class="class-name">${classInSlot.name}</div>
-                <div class="class-room">${this.getRoomName(classInSlot.roomId)}</div>
+                <div class="class-room">${this.getRoomName(classInSlot.roomId, this.dataManager.getRooms(), this.dataManager.getBuildings())}</div>
                 <div class="class-students">${classInSlot.enrolledStudents} alunos</div>
                 <button class="edit-class-btn" title="Editar turma">✏️</button>
               </div>
@@ -236,7 +236,7 @@ export class TeacherScheduleView {
         // Refresh view after modal closes
         setTimeout(() => {
           this.renderContent();
-        }, 500);
+        }, 1000);
       });
     }
   }
@@ -262,8 +262,9 @@ export class TeacherScheduleView {
   }
 
   getRoomName(roomId) {
-    const room = this.dataManager.getRooms().find(r => r.id === roomId);
-    const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
+  getRoomName(roomId, rooms, buildings) {
+    const room = rooms.find(r => r.id === roomId);
+    const building = buildings.find(b => b.id === room?.buildingId);
     return `${room?.name} - ${building?.name}`;
   }
 
@@ -272,7 +273,7 @@ export class TeacherScheduleView {
     const printWindow = window.open('', '_blank');
     const classes = this.dataManager.getClassesByTeacher(teacher.id);
     const periods = this.dataManager.getPeriods();
-    const currentWorkload = classes.reduce((total, cls) => total + cls.workload, 0);
+    const currentWorkload = classes.reduce((total, cls) => total + (cls.workload || 0), 0);
 
     // Group classes by period
     const classesByPeriod = {};
@@ -339,7 +340,7 @@ export class TeacherScheduleView {
                       ${classInSlot ? `
                         <div class="class-info">
                           <strong>${classInSlot.name}</strong><br>
-                          ${this.getRoomName(classInSlot.roomId)}<br>
+                          ${this.getRoomName(classInSlot.roomId, this.dataManager.getRooms(), this.dataManager.getBuildings())}<br>
                           ${classInSlot.enrolledStudents} alunos
                         </div>
                       ` : ''}

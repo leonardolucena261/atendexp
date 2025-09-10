@@ -99,8 +99,9 @@ export class ClassManager {
     const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
     const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
     const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
+    const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
     
-    const capacityPercentage = Math.min((classData.enrolledStudents / room.capacity) * 100, 100);
+    const capacityPercentage = room ? Math.min((classData.enrolledStudents / room.capacity) * 100, 100) : 0;
     let statusClass = 'normal';
     let statusIcon = '✅';
     let statusText = 'Adequada';
@@ -132,6 +133,10 @@ export class ClassManager {
           <div class="class-detail">
             <span class="label">Local:</span>
             <span class="value">${room?.name || 'N/A'} - ${building?.name || 'N/A'}</span>
+          </div>
+          <div class="class-detail">
+            <span class="label">Professor:</span>
+            <span class="value">${teacher?.name || 'Não atribuído'}</span>
           </div>
           <div class="class-detail">
             <span class="label">Professor:</span>
@@ -473,6 +478,12 @@ export class ClassManager {
       alert('⚠️ Conflito de horário detectado!\n\nJá existe uma turma cadastrada nesta sala no mesmo horário e dia da semana.\n\nPor favor, escolha um horário vago ou uma sala diferente.');
       return;
     }
+
+    // Validar conflito de horários do professor
+    if (this.hasTeacherScheduleConflict(teacherId, periodId, weekDays, startTime, endTime, classId)) {
+      alert('⚠️ Conflito de horário do professor detectado!\n\nO professor já possui uma turma no mesmo período letivo, horário e dia da semana.\n\nPor favor, escolha um horário vago ou outro professor.');
+      return;
+    }
     const classData = {
       name,
       periodId,
@@ -484,6 +495,7 @@ export class ClassManager {
       enrolledStudents,
       weekDays,
       teacherId,
+      teacherId,
       createdAt: classId ? undefined : new Date().toISOString()
     };
 
@@ -493,11 +505,6 @@ export class ClassManager {
       this.dataManager.addClass(classData);
     }
 
-    // Validar conflito de horários do professor
-    if (this.hasTeacherScheduleConflict(teacherId, periodId, weekDays, startTime, endTime, classId)) {
-      alert('⚠️ Conflito de horário do professor detectado!\n\nO professor já possui uma turma no mesmo período letivo, horário e dia da semana.\n\nPor favor, escolha um horário vago ou outro professor.');
-      return;
-    }
 
     this.renderContent();
   }
