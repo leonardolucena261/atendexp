@@ -493,7 +493,6 @@ export class ClassManager {
       enrolledStudents,
       weekDays,
       teacherId,
-      teacherId,
       createdAt: classId ? undefined : new Date().toISOString()
     };
 
