@@ -32,8 +32,8 @@ export class TeacherScheduleView {
             `).join('')}
           </select>
           ${this.selectedTeacher ? `
-            <button id="exportPdfBtn" class="btn btn-secondary">
-              📄 Exportar PDF
+            <button id="printScheduleBtn" class="btn btn-secondary">
+              🖨️ Imprimir Horário
             </button>
           ` : ''}
         </div>
@@ -238,13 +238,14 @@ export class TeacherScheduleView {
     return classes.reduce((total, cls) => total + (cls.workload || 0), 0);
   }
 
-  exportToPDF() {
+  printSchedule() {
     if (!this.selectedTeacher) return;
     
-    const printWindow = window.open('', '_blank');
+    // Criar uma nova janela para impressão
+    const printWindow = window.open('', '_blank', 'width=1200,height=800');
     
     if (!printWindow) {
-      alert('Pop-up bloqueado! Por favor, permita pop-ups para este site e tente novamente.');
+      alert('🚫 Pop-up bloqueado!\n\nPor favor, permita pop-ups para este site e tente novamente para imprimir o horário.');
       return;
     }
     
@@ -253,126 +254,212 @@ export class TeacherScheduleView {
     const enrichedClasses = this.enrichClassesData(classes);
     const currentWorkload = this.calculateWorkload(enrichedClasses);
     
+    // Gerar conteúdo HTML otimizado para impressão
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Escala de Horários - ${teacher.name}</title>
+        <title>Horário do Professor - ${teacher.name}</title>
+        <meta charset="UTF-8">
         <style>
+          @page {
+            size: A4 landscape;
+            margin: 15mm;
+          }
+          
           body { 
             font-family: Arial, sans-serif; 
-            margin: 20px; 
+            margin: 0;
+            padding: 20px;
             color: #333;
+            font-size: 12px;
+            line-height: 1.4;
           }
+          
           .header { 
             text-align: center; 
-            margin-bottom: 30px; 
+            margin-bottom: 25px; 
             border-bottom: 2px solid #6366f1;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
           }
+          
           .header h1 {
             color: #6366f1;
-            margin-bottom: 10px;
+            margin: 0 0 8px 0;
+            font-size: 24px;
           }
-          .teacher-info { 
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px; 
-          }
-          .teacher-info h3 {
-            margin-top: 0;
+          
+          .header h2 {
+            margin: 0 0 8px 0;
+            font-size: 20px;
             color: #1e293b;
           }
+          
+          .header p {
+            margin: 4px 0;
+            font-size: 14px;
+          }
+          
+          .teacher-info { 
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }
+          
+          .teacher-info h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 16px;
+          }
+          
+          .teacher-info p {
+            margin: 4px 0;
+            font-size: 13px;
+          }
+          
           .schedule-table { 
             width: 100%; 
             border-collapse: collapse; 
-            margin-bottom: 30px;
-            font-size: 12px;
+            margin-bottom: 20px;
+            font-size: 10px;
+            table-layout: fixed;
           }
+          
           .schedule-table th, .schedule-table td { 
             border: 1px solid #e2e8f0; 
-            padding: 8px; 
+            padding: 4px; 
             text-align: center; 
             vertical-align: middle;
+            word-wrap: break-word;
           }
+          
           .schedule-table th { 
             background-color: #6366f1; 
             color: white;
             font-weight: bold;
+            font-size: 11px;
           }
+          
           .time-header {
             background-color: #8b5cf6 !important;
             font-weight: bold;
+            width: 60px;
           }
+          
+          .day-header {
+            width: calc((100% - 60px) / 7);
+          }
+          
           .occupied { 
             background-color: #dbeafe; 
-            font-size: 10px;
+            font-size: 9px;
             line-height: 1.2;
+            padding: 2px;
           }
+          
           .class-name {
             font-weight: bold;
-            margin-bottom: 2px;
-          }
-          .class-details {
+            margin-bottom: 1px;
             font-size: 9px;
-            color: #64748b;
           }
+          
+          .class-details {
+            font-size: 8px;
+            color: #64748b;
+            line-height: 1.1;
+          }
+          
           .summary-section { 
-            margin-top: 30px; 
+            margin-top: 20px; 
             page-break-inside: avoid;
           }
+          
           .summary-section h3 {
             color: #1e293b;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            font-size: 16px;
           }
+          
           .class-item {
-            margin-bottom: 10px;
-            padding: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
             background: #f1f5f9;
             border-radius: 4px;
+            font-size: 11px;
           }
+          
           .class-item strong {
             color: #6366f1;
           }
+          
+          .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+          }
+          
           @media print { 
-            body { margin: 0; }
+            body { 
+              margin: 0;
+              padding: 10px;
+              font-size: 11px;
+            }
             .header { page-break-after: avoid; }
             .schedule-table { page-break-inside: avoid; }
+            .summary-section { page-break-before: auto; }
           }
         </style>
       </head>
       <body>
         <div class="header">
-          <h1>📅 Escala Semanal de Horários</h1>
+          <h1>📅 Horário do Professor</h1>
           <h2>${teacher.name}</h2>
           <p><strong>${teacher.specialty}</strong></p>
           <p>📧 ${teacher.email} | 📞 ${teacher.phone}</p>
         </div>
         
         <div class="teacher-info">
-          <h3>📊 Resumo da Carga Horária</h3>
-          <p><strong>Carga Horária Total:</strong> ${currentWorkload}h de ${teacher.maxWorkload}h (${Math.round((currentWorkload / teacher.maxWorkload) * 100)}%)</p>
-          <p><strong>Total de Turmas:</strong> ${classes.length}</p>
-          <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+          <div>
+            <h3>📊 Resumo da Carga Horária</h3>
+            <p><strong>Carga Horária Total:</strong> ${currentWorkload}h de ${teacher.maxWorkload}h (${Math.round((currentWorkload / teacher.maxWorkload) * 100)}%)</p>
+            <p><strong>Total de Turmas:</strong> ${classes.length}</p>
+          </div>
+          <div>
+            <h3>📄 Informações do Documento</h3>
+            <p><strong>Data de Geração:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+            <p><strong>Horário:</strong> ${new Date().toLocaleTimeString('pt-BR')}</p>
+            <p><strong>Sistema:</strong> Cidade do Saber</p>
+          </div>
         </div>
         
-        <h3>📅 Grade de Horários Semanal</h3>
-        ${this.generatePDFScheduleTable(enrichedClasses)}
+        <h3>📅 Grade Semanal de Horários</h3>
+        ${this.generatePrintScheduleTable(enrichedClasses)}
         
         <div class="summary-section">
           <h3>📚 Detalhamento das Turmas</h3>
           ${enrichedClasses.map(cls => `
             <div class="class-item">
               <p><strong>${cls.name}</strong></p>
-              <p>📍 <strong>Local:</strong> ${cls.room} - ${cls.building}</p>
-              <p>🕐 <strong>Horário:</strong> ${cls.startTime} - ${cls.endTime}</p>
-              <p>📅 <strong>Dias:</strong> ${cls.weekDays.join(', ')}</p>
-              <p>👥 <strong>Alunos:</strong> ${cls.enrolledStudents} | ⏱️ <strong>Carga:</strong> ${cls.workload}h</p>
+              <p>📍 <strong>Local:</strong> ${cls.room} - ${cls.building} | 🕐 <strong>Horário:</strong> ${cls.startTime} - ${cls.endTime}</p>
+              <p>📅 <strong>Dias:</strong> ${cls.weekDays.join(', ')} | 👥 <strong>Alunos:</strong> ${cls.enrolledStudents} | ⏱️ <strong>Carga:</strong> ${cls.workload}h</p>
               <p>📚 <strong>Período:</strong> ${cls.period} (${cls.periodYear})</p>
             </div>
           `).join('')}
+        </div>
+        
+        <div class="footer">
+          <p>Documento gerado pelo Sistema Administrativo - Cidade do Saber</p>
+          <p>Impresso em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
         </div>
       </body>
       </html>
@@ -380,13 +467,19 @@ export class TeacherScheduleView {
     
     printWindow.document.close();
     
-    // Aguardar o carregamento antes de imprimir
+    // Aguardar carregamento e focar na janela antes de imprimir
     setTimeout(() => {
+      printWindow.focus();
       printWindow.print();
-    }, 500);
+      
+      // Fechar janela após impressão (opcional)
+      printWindow.addEventListener('afterprint', () => {
+        printWindow.close();
+      });
+    }, 1000);
   }
 
-  generatePDFScheduleTable(classes) {
+  generatePrintScheduleTable(classes) {
     const timeSlots = this.generateTimeSlots();
     const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
     
@@ -395,7 +488,7 @@ export class TeacherScheduleView {
         <thead>
           <tr>
             <th class="time-header">Horário</th>
-            ${weekDays.map(day => `<th>${day}</th>`).join('')}
+            ${weekDays.map(day => `<th class="day-header">${day}</th>`).join('')}
           </tr>
         </thead>
         <tbody>
@@ -409,8 +502,7 @@ export class TeacherScheduleView {
                     ${classInSlot ? `
                       <div class="class-name">${classInSlot.name}</div>
                       <div class="class-details">
-                        ${classInSlot.room}<br>
-                        ${classInSlot.enrolledStudents} alunos
+                        ${classInSlot.room}<br>${classInSlot.enrolledStudents} alunos
                       </div>
                     ` : ''}
                   </td>
@@ -437,10 +529,10 @@ export class TeacherScheduleView {
       });
     }
 
-    const exportBtn = this.container.querySelector('#exportPdfBtn');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        this.exportToPDF();
+    const printBtn = this.container.querySelector('#printScheduleBtn');
+    if (printBtn) {
+      printBtn.addEventListener('click', () => {
+        this.printSchedule();
       });
     }
 
