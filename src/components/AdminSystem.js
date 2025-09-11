@@ -4,6 +4,8 @@ import { BuildingManager } from './BuildingManager.js';
 import { RoomManager } from './RoomManager.js';
 import { Dashboard } from './Dashboard.js';
 import { ClassManager } from './ClassManager.js';
+import { CourseManager } from './CourseManager.js';
+import { ClassProgressView } from './ClassProgressView.js';
 import { PeriodManager } from './PeriodManager.js';
 import { TeacherManager } from './TeacherManager.js';
 import { TeacherScheduleView } from './TeacherScheduleView.js';
