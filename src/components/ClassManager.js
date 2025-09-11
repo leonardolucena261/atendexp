@@ -360,17 +360,6 @@ export class ClassManager {
         
         <div class="form-row">
           <div class="form-group">
-            <label for="classWorkload">Carga Horária (horas)</label>
-            <input 
-              type="number" 
-              id="classWorkload" 
-              value="${classData?.workload || 40}" 
-              min="1"
-              required
-            >
-          </div>
-          
-          <div class="form-group">
             <label for="classShift">Turno</label>
             <select id="classShift" required>
               <option value="">Selecione o turno</option>
@@ -379,9 +368,7 @@ export class ClassManager {
               <option value="Noturno" ${classData?.shift === 'Noturno' ? 'selected' : ''}>Noturno</option>
             </select>
           </div>
-        </div>
-        
-        <div class="form-row">
+          
           <div class="form-group">
             <label for="classStartTime">Horário de Início</label>
             <input 
@@ -391,7 +378,9 @@ export class ClassManager {
               required
             >
           </div>
-          
+        </div>
+        
+        <div class="form-row">
           <div class="form-group">
             <label for="classEndTime">Horário de Término</label>
             <input 
@@ -401,17 +390,17 @@ export class ClassManager {
               required
             >
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="enrolledStudents">Alunos Matriculados</label>
-          <input 
-            type="number" 
-            id="enrolledStudents" 
-            value="${classData?.enrolledStudents || 0}" 
-            min="0"
-            required
-          >
+          
+          <div class="form-group">
+            <label for="enrolledStudents">Alunos Matriculados</label>
+            <input 
+              type="number" 
+              id="enrolledStudents" 
+              value="${classData?.enrolledStudents || 0}" 
+              min="0"
+              required
+            >
+          </div>
         </div>
         
         <div class="form-group">
