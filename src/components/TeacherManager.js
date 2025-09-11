@@ -155,6 +155,7 @@ export class TeacherManager {
       });
     });
   }
+
   renderTeacherCard(teacher) {
     const allClasses = this.dataManager.getClassesByTeacher(teacher.id);
     const periods = this.dataManager.getPeriods();
@@ -376,6 +377,17 @@ export class TeacherManager {
     const formHtml = `
       <form id="teacherForm" class="modal-form">
         <div class="form-group">
+          <label for="teacherName">Nome</label>
+          <input 
+            type="text" 
+            id="teacherName" 
+            value="${teacher?.name || ''}" 
+            placeholder="Nome completo do professor"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
           <div class="specialty-header">
             <label>Especialidades</label>
             <button type="button" class="btn btn-secondary" id="addSpecialtyBtn">
@@ -436,16 +448,18 @@ export class TeacherManager {
               required
             >
           </div>
-        <div class="form-group">
-          <label for="teacherMaxWorkload">Carga Horária Máxima (horas)</label>
-          <input 
-            type="number" 
-            id="teacherMaxWorkload" 
-            value="${teacher?.maxWorkload || 40}" 
-            min="1"
-            max="60"
-            required
-          >
+          
+          <div class="form-group">
+            <label for="teacherMaxWorkload">Carga Horária Máxima (horas)</label>
+            <input 
+              type="number" 
+              id="teacherMaxWorkload" 
+              value="${teacher?.maxWorkload || 40}" 
+              min="1"
+              max="60"
+              required
+            >
+          </div>
         </div>
         
         <div class="form-actions">
@@ -519,23 +533,24 @@ export class TeacherManager {
     if (this.nameFilter.trim()) {
       const searchTerm = this.nameFilter.toLowerCase().trim();
       const specialties = this.dataManager.getSpecialties();
-      filtered = filtered.filter(teacher => 
-        teacher.name.toLowerCase().includes(searchTerm) ||
-        teacher.specialty.toLowerCase().includes(searchTerm) ||
-        teacher.email.toLowerCase().includes(searchTerm)
-      );
-    }
-    
-    // Filter by period (only show teachers who have classes in the selected period)
-    if (this.selectedPeriod) {
       filtered = filtered.filter(teacher => {
         const teacherSpecialties = (teacher.specialties || [])
           .map(specId => specialties.find(s => s.id === specId)?.name)
           .filter(Boolean)
           .join(' ').toLowerCase();
         
+        return teacher.name.toLowerCase().includes(searchTerm) ||
+          teacher.specialty.toLowerCase().includes(searchTerm) ||
           teacher.email.toLowerCase().includes(searchTerm) ||
           teacherSpecialties.includes(searchTerm);
+      });
+    }
+    
+    // Filter by period (only show teachers who have classes in the selected period)
+    if (this.selectedPeriod) {
+      filtered = filtered.filter(teacher => {
+        const classes = this.dataManager.getClassesByTeacher(teacher.id);
+        return classes.some(cls => cls.periodId === this.selectedPeriod);
       });
     }
     
@@ -657,9 +672,13 @@ export class TeacherManager {
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" id="cancelSpecialtyBtn">Cancelar</button>
           <button type="submit" class="btn btn-primary">Adicionar</button>
+        </div>
+      </form>
+    `;
+
     const modal = new Modal('Nova Especialidade', formHtml);
     document.body.appendChild(modal.render());
-        </div>
+
     // Handle form submission
     document.getElementById('specialtyForm').addEventListener('submit', (e) => {
       e.preventDefault();
@@ -677,13 +696,13 @@ export class TeacherManager {
       // Update the specialty selection in the teacher form
       this.updateSpecialtySelection(newSpecialty);
     });
-      </form>
+
     // Handle cancel
     document.getElementById('cancelSpecialtyBtn').addEventListener('click', () => {
       modal.close();
     });
   }
-    `;
+
   updateSpecialtySelection(newSpecialty) {
     const specialtySelection = document.getElementById('specialtySelection');
     if (specialtySelection) {
