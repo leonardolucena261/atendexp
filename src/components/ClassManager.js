@@ -264,6 +264,7 @@ export class ClassManager {
     const rooms = this.dataManager.getRooms();
     const buildings = this.dataManager.getBuildings();
     const teachers = this.dataManager.getTeachers();
+    const courses = this.dataManager.getCourses();
 
     const periodOptions = periods.map(period => 
       `<option value="${period.id}" ${classData?.periodId === period.id ? 'selected' : ''}>
@@ -290,6 +291,12 @@ export class ClassManager {
           ${teacher.name} - ${teacherSpecialties}
         </option>`;
       }
+    ).join('');
+
+    const courseOptions = courses.map(course => 
+      `<option value="${course.id}" ${classData?.courseId === course.id ? 'selected' : ''}>
+        ${course.name}
+      </option>`
     ).join('');
 
     const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
@@ -322,6 +329,23 @@ export class ClassManager {
             <select id="classRoom" required>
               <option value="">Selecione a sala</option>
               ${roomOptions}
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="classCourse">Curso</label>
+            <select id="classCourse" required>
+              <option value="">Selecione o curso</option>
+              ${courseOptions}
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="classModule">Módulo/Etapa</label>
+            <select id="classModule" required>
+              <option value="">Primeiro selecione um curso</option>
             </select>
           </div>
         </div>
