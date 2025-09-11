@@ -439,17 +439,6 @@ export class TeacherManager {
         
         <div class="form-row">
           <div class="form-group">
-            <label for="teacherSpecialty">Especialidade</label>
-            <input 
-              type="text" 
-              id="teacherSpecialty" 
-              value="${teacher?.specialty || ''}" 
-              placeholder="Ex: Matemática, Dança, Música"
-              required
-            >
-          </div>
-          
-          <div class="form-group">
             <label for="teacherMaxWorkload">Carga Horária Máxima (horas)</label>
             <input 
               type="number" 
