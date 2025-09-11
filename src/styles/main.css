@@ -1816,6 +1816,312 @@ body {
   cursor: pointer;
 }
 
+/* Enrollment Wizard Styles */
+.enrollment-wizard {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.wizard-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.wizard-steps::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--border-color);
+  z-index: 1;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 2;
+  background: var(--bg-primary);
+  padding: 0 1rem;
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--border-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.125rem;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: var(--accent-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.step.completed .step-number {
+  background: #10b981;
+  color: white;
+}
+
+.step-label {
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.step.active .step-label {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.step.completed .step-label {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.wizard-content {
+  background: var(--bg-primary);
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.step-content {
+  min-height: 400px;
+}
+
+.step-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.step-header h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.step-header p {
+  color: var(--text-muted);
+  font-size: 1.125rem;
+}
+
+/* Password Step */
+.password-form {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.password-result {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.password-result.success {
+  background: #10b9811a;
+  border: 1px solid #10b981;
+  color: #10b981;
+}
+
+.password-result.error {
+  background: #ef44441a;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+/* Student Step */
+.class-info-card {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.class-info-card h4 {
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.class-details {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.student-search {
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px #6366f11a;
+}
+
+.students-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+}
+
+.student-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.student-card:last-child {
+  border-bottom: none;
+}
+
+.student-card:hover {
+  background: var(--bg-primary);
+}
+
+.student-card.selected {
+  background: #6366f11a;
+  border-color: var(--accent-primary);
+}
+
+.student-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+}
+
+.student-details {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.student-address {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.empty-students {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/* Confirmation Step */
+.confirmation-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.confirmation-section h4 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.confirmation-card {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.confirmation-card p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.confirmation-card strong {
+  color: var(--text-primary);
+}
+
+/* Success Modal */
+.enrollment-success {
+  text-align: center;
+}
+
+.success-header {
+  margin-bottom: 2rem;
+}
+
+.success-header h3 {
+  color: #10b981;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.enrollment-summary {
+  background: var(--bg-tertiary);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.summary-item {
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.summary-item strong {
+  color: var(--text-primary);
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
 /* Student and Enrollment specific styles */
 .student-card, .enrollment-card {
   background: var(--bg-secondary);
@@ -3060,6 +3366,25 @@ body {
   .dashboard-content {
     grid-template-columns: 1fr;
   }
+  
+  .wizard-steps::before {
+    left: 10%;
+    right: 10%;
+  }
+  
+  .class-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .student-details {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .receipt-actions {
+    flex-direction: column;
+  }
   .students-grid, .enrollments-grid {
     grid-template-columns: 1fr;
   }
@@ -3188,6 +3513,18 @@ body {
   
   .modal-content {
     padding: 1.5rem;
+  }
+  
+  .wizard-content {
+    padding: 2rem 1.5rem;
+  }
+  
+  .step-content {
+    min-height: 300px;
+  }
+  
+  .confirmation-details {
+    gap: 1.5rem;
   }
   
   .modal-header {
