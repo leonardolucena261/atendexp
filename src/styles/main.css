@@ -3250,6 +3250,137 @@ body {
   margin-top: 1rem;
 }
 
+/* Password Management Styles */
+.passwords-manager {
+  width: 100%;
+}
+
+.passwords-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.password-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.password-actions input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.passwords-actions-bar {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.password-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+}
+
+.password-card.used {
+  opacity: 0.7;
+  background: var(--bg-tertiary);
+}
+
+.password-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.password-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.password-code {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  font-family: 'Courier New', monospace;
+  letter-spacing: 2px;
+  background: var(--bg-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--accent-primary);
+}
+
+.password-status {
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.password-card.available .password-status {
+  background: #10b9811a;
+  color: #10b981;
+}
+
+.password-card.used .password-status {
+  background: #64748b1a;
+  color: #64748b;
+}
+
+.password-details {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.qr-code-preview {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed var(--accent-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--accent-primary);
+  background: var(--bg-primary);
+  flex-shrink: 0;
+}
+
+.password-info {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.password-info p {
+  margin: 0.25rem 0;
+}
+
+.empty-passwords {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.empty-passwords p {
+  font-size: 1.125rem;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
