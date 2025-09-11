@@ -649,6 +649,309 @@ export class ClassManager {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
   }
+
+  showPasswordsModal(classData) {
+    const passwords = this.dataManager.getPasswordsByClass(classData.id);
+    const room = this.dataManager.getRooms().find(r => r.id === classData.roomId);
+    const availableSpots = room ? room.capacity - classData.enrolledStudents : 0;
+    const unusedPasswords = passwords.filter(p => !p.isUsed);
+
+    const modalContent = `
+      <div class="passwords-manager">
+        <div class="passwords-header">
+          <div class="class-info">
+            <h4>${classData.name}</h4>
+            <p>Capacidade: ${classData.enrolledStudents}/${room?.capacity || 0} • Vagas disponíveis: ${availableSpots}</p>
+            <p>Senhas não utilizadas: ${unusedPasswords.length}</p>
+          </div>
+          <div class="password-actions">
+            <input type="number" id="passwordQuantity" min="1" max="${availableSpots}" value="1" placeholder="Qtd">
+            <button class="btn btn-primary" id="generatePasswordsBtn" ${availableSpots <= 0 ? 'disabled' : ''}>
+              <span>🎫</span>
+              Gerar Senhas
+            </button>
+          </div>
+        </div>
+        
+        <div class="passwords-list" id="passwordsList">
+          ${passwords.length > 0 ? `
+            <div class="passwords-actions-bar">
+              <button class="btn btn-secondary" id="printPasswordsBtn">
+                🖨️ Imprimir Todas
+              </button>
+              <button class="btn btn-secondary" id="printUnusedBtn">
+                🖨️ Imprimir Não Utilizadas
+              </button>
+            </div>
+            ${passwords.map(password => `
+              <div class="password-card ${password.isUsed ? 'used' : 'available'}" data-password-id="${password.id}">
+                <div class="password-header">
+                  <div class="password-code">${password.code}</div>
+                  <div class="password-status">
+                    ${password.isUsed ? '✅ Utilizada' : '🎫 Disponível'}
+                  </div>
+                  ${!password.isUsed ? `
+                    <button class="btn-icon delete-password-btn" title="Excluir senha">🗑️</button>
+                  ` : ''}
+                </div>
+                <div class="password-details">
+                  <div class="qr-code-preview" data-qr="${password.qrCode}">
+                    📱 QR Code
+                  </div>
+                  <div class="password-info">
+                    <p><strong>Criada em:</strong> ${new Date(password.createdAt).toLocaleDateString('pt-BR')}</p>
+                    ${password.isUsed ? `
+                      <p><strong>Utilizada em:</strong> ${new Date(password.usedAt).toLocaleDateString('pt-BR')}</p>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          ` : `
+            <div class="empty-passwords">
+              <p>Nenhuma senha gerada para esta turma.</p>
+            </div>
+          `}
+        </div>
+      </div>
+    `;
+
+    const modal = new Modal(`Senhas - ${classData.name}`, modalContent);
+    document.body.appendChild(modal.render());
+
+    // Generate passwords button
+    const generateBtn = document.getElementById('generatePasswordsBtn');
+    if (generateBtn && !generateBtn.disabled) {
+      generateBtn.addEventListener('click', () => {
+        const quantity = parseInt(document.getElementById('passwordQuantity').value) || 1;
+        if (quantity > availableSpots) {
+          alert(`Não é possível gerar ${quantity} senhas. Apenas ${availableSpots} vagas disponíveis.`);
+          return;
+        }
+        
+        this.dataManager.generatePasswordsForClass(classData.id, quantity);
+        modal.close();
+        setTimeout(() => this.showPasswordsModal(classData), 100);
+      });
+    }
+
+    // Print buttons
+    const printAllBtn = document.getElementById('printPasswordsBtn');
+    if (printAllBtn) {
+      printAllBtn.addEventListener('click', () => {
+        this.printPasswords(classData, passwords);
+      });
+    }
+
+    const printUnusedBtn = document.getElementById('printUnusedBtn');
+    if (printUnusedBtn) {
+      printUnusedBtn.addEventListener('click', () => {
+        this.printPasswords(classData, unusedPasswords);
+      });
+    }
+
+    // Delete password buttons
+    passwords.forEach(password => {
+      if (!password.isUsed) {
+        const deleteBtn = document.querySelector(`[data-password-id="${password.id}"] .delete-password-btn`);
+        if (deleteBtn) {
+          deleteBtn.addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja excluir esta senha?')) {
+              this.dataManager.deletePassword(password.id);
+              modal.close();
+              setTimeout(() => this.showPasswordsModal(classData), 100);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  printPasswords(classData, passwords) {
+    if (passwords.length === 0) {
+      alert('Nenhuma senha para imprimir.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    
+    if (!printWindow) {
+      alert('🚫 Pop-up bloqueado!\n\nPor favor, permita pop-ups para este site e tente novamente.');
+      return;
+    }
+
+    const course = this.dataManager.getCourses().find(c => c.id === classData.courseId);
+    const module = this.dataManager.getCourseModules().find(m => m.id === classData.moduleId);
+    const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Senhas de Matrícula - ${classData.name}</title>
+        <meta charset="UTF-8">
+        <style>
+          @page {
+            size: A4;
+            margin: 10mm;
+          }
+          
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #6366f1;
+            padding-bottom: 15px;
+          }
+          
+          .header h1 {
+            color: #6366f1;
+            margin: 0 0 5px 0;
+            font-size: 18px;
+          }
+          
+          .header h2 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            color: #1e293b;
+          }
+          
+          .passwords-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+          }
+          
+          .password-ticket {
+            border: 2px dashed #6366f1;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8fafc;
+            page-break-inside: avoid;
+            text-align: center;
+          }
+          
+          .ticket-header {
+            background: #6366f1;
+            color: white;
+            padding: 8px;
+            margin: -15px -15px 10px -15px;
+            border-radius: 6px 6px 0 0;
+            font-weight: bold;
+          }
+          
+          .password-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #6366f1;
+            margin: 10px 0;
+            letter-spacing: 2px;
+            border: 1px solid #6366f1;
+            padding: 8px;
+            border-radius: 4px;
+            background: white;
+          }
+          
+          .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #6366f1;
+            margin: 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #6366f1;
+            background: white;
+          }
+          
+          .ticket-info {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 10px;
+            line-height: 1.4;
+          }
+          
+          .instructions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 11px;
+          }
+          
+          @media print {
+            body { font-size: 11px; }
+            .passwords-grid { gap: 10px; }
+            .password-ticket { padding: 10px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>🎫 Senhas de Matrícula</h1>
+          <h2>${classData.name}</h2>
+          <p><strong>Curso:</strong> ${course?.name || 'N/A'} | <strong>Módulo:</strong> ${module?.name || 'N/A'}</p>
+          <p><strong>Período:</strong> ${period?.name} (${period?.year}) | <strong>Horário:</strong> ${classData.startTime} - ${classData.endTime}</p>
+        </div>
+        
+        <div class="passwords-grid">
+          ${passwords.map(password => `
+            <div class="password-ticket">
+              <div class="ticket-header">
+                SENHA DE MATRÍCULA
+              </div>
+              <div class="password-code">${password.code}</div>
+              <div class="qr-placeholder">
+                QR CODE<br>
+                📱
+              </div>
+              <div class="ticket-info">
+                <p><strong>Turma:</strong> ${classData.name}</p>
+                <p><strong>Dias:</strong> ${classData.weekDays.join(', ')}</p>
+                <p><strong>Gerada em:</strong> ${new Date(password.createdAt).toLocaleDateString('pt-BR')}</p>
+                <p><strong>Status:</strong> ${password.isUsed ? 'UTILIZADA' : 'DISPONÍVEL'}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="instructions">
+          <h4>📋 Instruções:</h4>
+          <p>1. Cada senha corresponde a uma vaga na turma</p>
+          <p>2. Escaneie o QR Code ou use o código para realizar a matrícula</p>
+          <p>3. Cada senha pode ser utilizada apenas uma vez</p>
+          <p>4. Guarde esta senha até completar a matrícula</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; font-size: 10px; color: #64748b;">
+          Documento gerado pelo Sistema Administrativo - Cidade do Saber<br>
+          Impresso em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}
+        </div>
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      
+      printWindow.addEventListener('afterprint', () => {
+        printWindow.close();
+      });
+    }, 1000);
+  }
+
   deleteClass(classId) {
     if (confirm('Tem certeza que deseja excluir esta turma? Esta ação não pode ser desfeita.')) {
       this.dataManager.deleteClass(classId);
