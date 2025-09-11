@@ -4,6 +4,8 @@ export class TeacherManager {
   constructor(dataManager) {
     this.dataManager = dataManager;
     this.container = null;
+    this.selectedPeriod = null;
+    this.nameFilter = '';
   }
 
   render() {
@@ -15,7 +17,9 @@ export class TeacherManager {
   }
 
   renderContent() {
-    const teachers = this.dataManager.getTeachers();
+    const allTeachers = this.dataManager.getTeachers();
+    const periods = this.dataManager.getPeriods();
+    const teachers = this.getFilteredTeachers(allTeachers);
 
     this.container.innerHTML = `
       <div class="page-header">
@@ -30,6 +34,27 @@ export class TeacherManager {
       </div>
 
       <div class="content-section">
+        <div class="filter-section">
+          <input 
+            type="text" 
+            id="nameFilter" 
+            class="filter-select" 
+            placeholder="🔍 Buscar por nome do professor..."
+            value="${this.nameFilter}"
+            style="min-width: 300px;"
+          >
+          <select id="periodFilter" class="filter-select">
+            <option value="">Todos os períodos letivos</option>
+            ${periods.map(period => 
+              `<option value="${period.id}" ${this.selectedPeriod === period.id ? 'selected' : ''}>
+                ${period.name} (${period.year})
+              </option>`
+            ).join('')}
+          </select>
+          <div class="filter-info">
+            <span>📊 ${teachers.length} professor${teachers.length !== 1 ? 'es' : ''} encontrado${teachers.length !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
         <div class="teachers-grid" id="teachersGrid">
           ${teachers.map(teacher => this.renderTeacherCard(teacher)).join('')}
         </div>
@@ -39,6 +64,17 @@ export class TeacherManager {
     // Add event listeners
     this.container.querySelector('#addTeacherBtn').addEventListener('click', () => {
       this.showTeacherModal();
+    });
+
+    // Add filter listeners
+    this.container.querySelector('#nameFilter').addEventListener('input', (e) => {
+      this.nameFilter = e.target.value;
+      this.renderContent();
+    });
+
+    this.container.querySelector('#periodFilter').addEventListener('change', (e) => {
+      this.selectedPeriod = e.target.value || null;
+      this.renderContent();
     });
 
     // Add edit/delete/schedule listeners for each teacher
@@ -60,7 +96,16 @@ export class TeacherManager {
   }
 
   renderTeacherCard(teacher) {
-    const classes = this.dataManager.getClassesByTeacher(teacher.id);
+    const allClasses = this.dataManager.getClassesByTeacher(teacher.id);
+    const periods = this.dataManager.getPeriods();
+    const rooms = this.dataManager.getRooms();
+    const buildings = this.dataManager.getBuildings();
+    
+    // Filter classes by selected period if any
+    const classes = this.selectedPeriod 
+      ? allClasses.filter(cls => cls.periodId === this.selectedPeriod)
+      : allClasses;
+    
     const currentWorkload = classes.reduce((total, cls) => total + (cls.workload || 0), 0);
     const workloadPercentage = Math.min((currentWorkload / teacher.maxWorkload) * 100, 100);
     
@@ -78,6 +123,11 @@ export class TeacherManager {
       statusText = 'Quase lotada';
     }
 
+    // Group classes by period
+    const classesByPeriod = this.groupClassesByPeriod(allClasses, periods);
+    const periodText = this.selectedPeriod 
+      ? periods.find(p => p.id === this.selectedPeriod)?.name || 'Período'
+      : 'Todos os períodos';
     return `
       <div class="teacher-card" data-teacher-id="${teacher.id}">
         <div class="teacher-header">
@@ -102,12 +152,20 @@ export class TeacherManager {
             <span class="value">${teacher.specialty}</span>
           </div>
           <div class="teacher-detail">
-            <span class="label">Turmas ativas:</span>
+            <span class="label">Período:</span>
+            <span class="value">${periodText}</span>
+          </div>
+          <div class="teacher-detail">
+            <span class="label">Turmas no período:</span>
             <span class="value">${classes.length} turma${classes.length !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="teacher-detail">
+            <span class="label">Total de turmas:</span>
+            <span class="value">${allClasses.length} turma${allClasses.length !== 1 ? 's' : ''}</span>
           </div>
           <div class="workload-section">
             <div class="workload-header">
-              <span class="label">Carga Horária:</span>
+              <span class="label">Carga Horária (${periodText}):</span>
               <span class="workload-status ${workloadStatus}">
                 ${statusIcon} ${statusText}
               </span>
@@ -119,6 +177,7 @@ export class TeacherManager {
               ${currentWorkload}h/${teacher.maxWorkload}h (${Math.round(workloadPercentage)}%)
             </div>
           </div>
+          ${this.renderTeacherClasses(classesByPeriod, rooms, buildings, periods)}
         </div>
       </div>
     `;
@@ -356,6 +415,100 @@ export class TeacherManager {
     }
 
     this.renderContent();
+  }
+
+  getFilteredTeachers(teachers) {
+    let filtered = teachers;
+    
+    // Filter by name
+    if (this.nameFilter.trim()) {
+      const searchTerm = this.nameFilter.toLowerCase().trim();
+      filtered = filtered.filter(teacher => 
+        teacher.name.toLowerCase().includes(searchTerm) ||
+        teacher.specialty.toLowerCase().includes(searchTerm) ||
+        teacher.email.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Filter by period (only show teachers who have classes in the selected period)
+    if (this.selectedPeriod) {
+      filtered = filtered.filter(teacher => {
+        const teacherClasses = this.dataManager.getClassesByTeacher(teacher.id);
+        return teacherClasses.some(cls => cls.periodId === this.selectedPeriod);
+      });
+    }
+    
+    return filtered;
+  }
+
+  groupClassesByPeriod(classes, periods) {
+    const grouped = {};
+    
+    periods.forEach(period => {
+      const periodClasses = classes.filter(cls => cls.periodId === period.id);
+      if (periodClasses.length > 0) {
+        grouped[period.id] = {
+          period: period,
+          classes: periodClasses
+        };
+      }
+    });
+    
+    return grouped;
+  }
+
+  renderTeacherClasses(classesByPeriod, rooms, buildings, periods) {
+    const periodEntries = Object.entries(classesByPeriod);
+    
+    if (periodEntries.length === 0) {
+      return `
+        <div class="teacher-classes">
+          <div class="classes-header">
+            <span class="label">📚 Turmas:</span>
+          </div>
+          <div class="empty-classes">
+            <p>Nenhuma turma atribuída${this.selectedPeriod ? ' neste período' : ''}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="teacher-classes">
+        <div class="classes-header">
+          <span class="label">📚 Turmas por Período:</span>
+        </div>
+        ${periodEntries.map(([periodId, data]) => {
+          const { period, classes } = data;
+          return `
+            <div class="period-classes">
+              <div class="period-title">
+                <strong>${period.name} (${period.year})</strong>
+                <span class="period-count">${classes.length} turma${classes.length !== 1 ? 's' : ''}</span>
+              </div>
+              <div class="classes-list">
+                ${classes.map(cls => {
+                  const room = rooms.find(r => r.id === cls.roomId);
+                  const building = buildings.find(b => b.id === room?.buildingId);
+                  return `
+                    <div class="class-item">
+                      <div class="class-name">${cls.name}</div>
+                      <div class="class-details">
+                        <span class="class-time">🕐 ${cls.startTime} - ${cls.endTime}</span>
+                        <span class="class-days">📅 ${cls.weekDays.join(', ')}</span>
+                        <span class="class-location">📍 ${room?.name} - ${building?.name}</span>
+                        <span class="class-students">👥 ${cls.enrolledStudents} alunos</span>
+                        <span class="class-workload">⏱️ ${cls.workload}h</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
   }
 
   deleteTeacher(teacherId) {
