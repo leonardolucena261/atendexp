@@ -5,6 +5,7 @@ export class TeacherManager {
     this.dataManager = dataManager;
     this.container = null;
     this.selectedPeriod = null;
+    this.selectedSpecialty = null;
     this.nameFilter = '';
   }
 
@@ -19,6 +20,7 @@ export class TeacherManager {
   renderContent() {
     const allTeachers = this.dataManager.getTeachers();
     const periods = this.dataManager.getPeriods();
+    const specialties = this.dataManager.getSpecialties();
     const teachers = this.getFilteredTeachers(allTeachers);
 
     this.container.innerHTML = `
@@ -43,6 +45,14 @@ export class TeacherManager {
             value="${this.nameFilter}"
             style="min-width: 300px;"
           >
+          <select id="specialtyFilter" class="filter-select">
+            <option value="">Todas as especialidades</option>
+            ${specialties.map(specialty => 
+              `<option value="${specialty.id}" ${this.selectedSpecialty === specialty.id ? 'selected' : ''}>
+                ${specialty.name}
+              </option>`
+            ).join('')}
+          </select>
           <select id="periodFilter" class="filter-select">
             <option value="">Todos os períodos letivos</option>
             ${periods.map(period => 
@@ -77,6 +87,16 @@ export class TeacherManager {
       this.renderContent();
     });
 
+    this.container.querySelector('#specialtyFilter').addEventListener('change', (e) => {
+      this.selectedSpecialty = e.target.value || null;
+      this.renderContent();
+    });
+
+    this.container.querySelector('#specialtyFilter').addEventListener('change', (e) => {
+      this.selectedSpecialty = e.target.value || null;
+      this.renderContent();
+    });
+
     // Add edit/delete/schedule listeners for each teacher
     teachers.forEach(teacher => {
       const card = this.container.querySelector(`[data-teacher-id="${teacher.id}"]`);
@@ -102,9 +122,21 @@ export class TeacherManager {
     // Update only the teachers grid and filter info
     const teachersGrid = this.container.querySelector('#teachersGrid');
     const filterInfo = this.container.querySelector('.filter-info span');
+    const specialtyFilter = this.container.querySelector('#specialtyFilter');
     
     teachersGrid.innerHTML = teachers.map(teacher => this.renderTeacherCard(teacher)).join('');
     filterInfo.textContent = `📊 ${teachers.length} professor${teachers.length !== 1 ? 'es' : ''} encontrado${teachers.length !== 1 ? 's' : ''}`;
+    
+    // Update specialty filter options in case new specialties were added
+    const specialties = this.dataManager.getSpecialties();
+    specialtyFilter.innerHTML = `
+      <option value="">Todas as especialidades</option>
+      ${specialties.map(specialty => 
+        `<option value="${specialty.id}" ${this.selectedSpecialty === specialty.id ? 'selected' : ''}>
+          ${specialty.name}
+        </option>`
+      ).join('')}
+    `;
     
     // Re-add event listeners for teacher cards
     teachers.forEach(teacher => {
@@ -128,6 +160,7 @@ export class TeacherManager {
     const periods = this.dataManager.getPeriods();
     const rooms = this.dataManager.getRooms();
     const buildings = this.dataManager.getBuildings();
+    const specialties = this.dataManager.getSpecialties();
     
     // Filter classes by selected period if any
     const classes = this.selectedPeriod 
@@ -156,6 +189,13 @@ export class TeacherManager {
     const periodText = this.selectedPeriod 
       ? periods.find(p => p.id === this.selectedPeriod)?.name || 'Período'
       : 'Todos os períodos';
+
+    // Get teacher specialties names
+    const teacherSpecialties = (teacher.specialties || [])
+      .map(specId => specialties.find(s => s.id === specId)?.name)
+      .filter(Boolean)
+      .join(', ') || 'Não informado';
+
     return `
       <div class="teacher-card" data-teacher-id="${teacher.id}">
         <div class="teacher-header">
@@ -176,8 +216,8 @@ export class TeacherManager {
             <span class="value">${teacher.phone}</span>
           </div>
           <div class="teacher-detail">
-            <span class="label">Especialidade:</span>
-            <span class="value">${teacher.specialty}</span>
+            <span class="label">Especialidades:</span>
+            <span class="value">${teacherSpecialties}</span>
           </div>
           <div class="teacher-detail">
             <span class="label">Período:</span>
@@ -331,18 +371,34 @@ export class TeacherManager {
   showTeacherModal(teacher = null) {
     const isEdit = teacher !== null;
     const title = isEdit ? 'Editar Professor' : 'Novo Professor';
+    const specialties = this.dataManager.getSpecialties();
 
     const formHtml = `
       <form id="teacherForm" class="modal-form">
         <div class="form-group">
-          <label for="teacherName">Nome Completo</label>
-          <input 
-            type="text" 
-            id="teacherName" 
-            value="${teacher?.name || ''}" 
-            placeholder="Ex: João Silva"
-            required
-          >
+          <div class="specialty-header">
+            <label>Especialidades</label>
+            <button type="button" class="btn btn-secondary" id="addSpecialtyBtn">
+              ➕ Nova Especialidade
+            </button>
+          </div>
+          <div class="specialty-selection" id="specialtySelection">
+            ${specialties.map(specialty => {
+              const isSelected = teacher?.specialties?.includes(specialty.id) || false;
+              return `
+                <label class="specialty-item">
+                  <input 
+                    type="checkbox" 
+                    value="${specialty.id}" 
+                    ${isSelected ? 'checked' : ''}
+                    class="specialty-checkbox"
+                  >
+                  <span class="specialty-name">${specialty.name}</span>
+                  <span class="specialty-description">${specialty.description}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
         </div>
         
         <div class="form-row">
@@ -380,18 +436,16 @@ export class TeacherManager {
               required
             >
           </div>
-          
-          <div class="form-group">
-            <label for="teacherMaxWorkload">Carga Horária Máxima (horas)</label>
-            <input 
-              type="number" 
-              id="teacherMaxWorkload" 
-              value="${teacher?.maxWorkload || 40}" 
-              min="1"
-              max="60"
-              required
-            >
-          </div>
+        <div class="form-group">
+          <label for="teacherMaxWorkload">Carga Horária Máxima (horas)</label>
+          <input 
+            type="number" 
+            id="teacherMaxWorkload" 
+            value="${teacher?.maxWorkload || 40}" 
+            min="1"
+            max="60"
+            required
+          >
         </div>
         
         <div class="form-actions">
@@ -405,6 +459,11 @@ export class TeacherManager {
 
     const modal = new Modal(title, formHtml);
     document.body.appendChild(modal.render());
+
+    // Handle add specialty button
+    document.getElementById('addSpecialtyBtn').addEventListener('click', () => {
+      this.showAddSpecialtyModal();
+    });
 
     // Handle form submission
     const form = document.getElementById('teacherForm');
@@ -424,14 +483,22 @@ export class TeacherManager {
     const name = document.getElementById('teacherName').value;
     const email = document.getElementById('teacherEmail').value;
     const phone = document.getElementById('teacherPhone').value;
-    const specialty = document.getElementById('teacherSpecialty').value;
     const maxWorkload = parseInt(document.getElementById('teacherMaxWorkload').value);
+    
+    // Get selected specialties
+    const selectedSpecialties = Array.from(document.querySelectorAll('.specialty-checkbox:checked'))
+      .map(checkbox => checkbox.value);
+
+    if (selectedSpecialties.length === 0) {
+      alert('Por favor, selecione pelo menos uma especialidade.');
+      return;
+    }
 
     const teacherData = {
       name,
       email,
       phone,
-      specialty,
+      specialties: selectedSpecialties,
       maxWorkload,
       createdAt: teacherId ? undefined : new Date().toISOString()
     };
@@ -451,6 +518,7 @@ export class TeacherManager {
     // Filter by name
     if (this.nameFilter.trim()) {
       const searchTerm = this.nameFilter.toLowerCase().trim();
+      const specialties = this.dataManager.getSpecialties();
       filtered = filtered.filter(teacher => 
         teacher.name.toLowerCase().includes(searchTerm) ||
         teacher.specialty.toLowerCase().includes(searchTerm) ||
@@ -461,9 +529,21 @@ export class TeacherManager {
     // Filter by period (only show teachers who have classes in the selected period)
     if (this.selectedPeriod) {
       filtered = filtered.filter(teacher => {
-        const teacherClasses = this.dataManager.getClassesByTeacher(teacher.id);
-        return teacherClasses.some(cls => cls.periodId === this.selectedPeriod);
+        const teacherSpecialties = (teacher.specialties || [])
+          .map(specId => specialties.find(s => s.id === specId)?.name)
+          .filter(Boolean)
+          .join(' ').toLowerCase();
+        
+          teacher.email.toLowerCase().includes(searchTerm) ||
+          teacherSpecialties.includes(searchTerm);
       });
+    }
+    
+    // Filter by specialty
+    if (this.selectedSpecialty) {
+      filtered = filtered.filter(teacher => 
+        teacher.specialties && teacher.specialties.includes(this.selectedSpecialty)
+      );
     }
     
     return filtered;
@@ -549,6 +629,79 @@ export class TeacherManager {
     if (confirm('Tem certeza que deseja excluir este professor? Esta ação não pode ser desfeita.')) {
       this.dataManager.deleteTeacher(teacherId);
       this.renderContent();
+    }
+  }
+
+  showAddSpecialtyModal() {
+    const formHtml = `
+      <form id="specialtyForm" class="modal-form">
+        <div class="form-group">
+          <label for="specialtyName">Nome da Especialidade</label>
+          <input 
+            type="text" 
+            id="specialtyName" 
+            placeholder="Ex: Dança Contemporânea"
+            required
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="specialtyDescription">Descrição</label>
+          <textarea 
+            id="specialtyDescription" 
+            placeholder="Breve descrição da especialidade..."
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelSpecialtyBtn">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+    const modal = new Modal('Nova Especialidade', formHtml);
+    document.body.appendChild(modal.render());
+        </div>
+    // Handle form submission
+    document.getElementById('specialtyForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('specialtyName').value;
+      const description = document.getElementById('specialtyDescription').value;
+      
+      const newSpecialty = this.dataManager.addSpecialty({
+        name,
+        description
+      });
+      
+      modal.close();
+      
+      // Update the specialty selection in the teacher form
+      this.updateSpecialtySelection(newSpecialty);
+    });
+      </form>
+    // Handle cancel
+    document.getElementById('cancelSpecialtyBtn').addEventListener('click', () => {
+      modal.close();
+    });
+  }
+    `;
+  updateSpecialtySelection(newSpecialty) {
+    const specialtySelection = document.getElementById('specialtySelection');
+    if (specialtySelection) {
+      // Add the new specialty to the selection
+      const specialtyItem = document.createElement('label');
+      specialtyItem.className = 'specialty-item';
+      specialtyItem.innerHTML = `
+        <input 
+          type="checkbox" 
+          value="${newSpecialty.id}" 
+          checked
+          class="specialty-checkbox"
+        >
+        <span class="specialty-name">${newSpecialty.name}</span>
+        <span class="specialty-description">${newSpecialty.description}</span>
+      `;
+      
+      specialtySelection.appendChild(specialtyItem);
     }
   }
 }

@@ -273,9 +273,17 @@ export class ClassManager {
     }).join('');
 
     const teacherOptions = teachers.map(teacher => 
-      `<option value="${teacher.id}" ${classData?.teacherId === teacher.id ? 'selected' : ''}>
-        ${teacher.name} - ${teacher.specialty}
-      </option>`
+      {
+        const specialties = this.dataManager.getSpecialties();
+        const teacherSpecialties = (teacher.specialties || [])
+          .map(specId => specialties.find(s => s.id === specId)?.name)
+          .filter(Boolean)
+          .join(', ') || 'Sem especialidade';
+        
+        return `<option value="${teacher.id}" ${classData?.teacherId === teacher.id ? 'selected' : ''}>
+          ${teacher.name} - ${teacherSpecialties}
+        </option>`;
+      }
     ).join('');
 
     const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];

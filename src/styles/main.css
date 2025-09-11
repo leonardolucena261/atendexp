@@ -1816,6 +1816,78 @@ body {
   cursor: pointer;
 }
 
+/* Specialty Selection */
+.specialty-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.specialty-header label {
+  margin-bottom: 0;
+}
+
+.specialty-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+}
+
+.specialty-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-light);
+  background: var(--bg-primary);
+}
+
+.specialty-item:hover {
+  background: var(--border-color);
+  border-color: var(--border-color);
+}
+
+.specialty-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-primary);
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.specialty-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.specialty-description {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.3;
+  display: block;
+}
+
+.specialty-item input:checked + .specialty-name {
+  color: var(--accent-primary);
+}
+
+.specialty-item input:checked ~ .specialty-description {
+  color: var(--text-secondary);
+}
+
 /* Teacher Schedule View */
 .teacher-schedule-main {
   display: flex;

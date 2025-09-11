@@ -5,6 +5,7 @@ export class DataManager {
     this.classes = this.loadClasses();
     this.periods = this.loadPeriods();
     this.teachers = this.loadTeachers();
+    this.specialties = this.loadSpecialties();
   }
 
   // Building methods
@@ -182,6 +183,36 @@ export class DataManager {
     return this.classes.filter(cls => cls.teacherId === teacherId);
   }
 
+  // Specialty methods
+  getSpecialties() {
+    return this.specialties;
+  }
+
+  addSpecialty(specialtyData) {
+    const specialty = {
+      id: this.generateId(),
+      ...specialtyData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.specialties.push(specialty);
+    this.saveSpecialties();
+    return specialty;
+  }
+
+  updateSpecialty(id, specialtyData) {
+    const index = this.specialties.findIndex(s => s.id === id);
+    if (index !== -1) {
+      this.specialties[index] = { ...this.specialties[index], ...specialtyData };
+      this.saveSpecialties();
+    }
+  }
+
+  deleteSpecialty(id) {
+    this.specialties = this.specialties.filter(s => s.id !== id);
+    this.saveSpecialties();
+  }
+
   // Storage methods
   loadBuildings() {
     const stored = localStorage.getItem('cidade_saber_buildings');
@@ -226,6 +257,15 @@ export class DataManager {
 
   saveTeachers() {
     localStorage.setItem('cidade_saber_teachers', JSON.stringify(this.teachers));
+  }
+
+  loadSpecialties() {
+    const stored = localStorage.getItem('cidade_saber_specialties');
+    return stored ? JSON.parse(stored) : this.getDefaultSpecialties();
+  }
+
+  saveSpecialties() {
+    localStorage.setItem('cidade_saber_specialties', JSON.stringify(this.specialties));
   }
 
   // Default data
@@ -344,7 +384,7 @@ export class DataManager {
         name: 'Maria Silva',
         email: 'maria.silva@cidadedosaber.com',
         phone: '(11) 99999-1111',
-        specialty: 'Dança Contemporânea',
+        specialties: ['1', '2'], // IDs das especialidades
         maxWorkload: 40,
         createdAt: new Date().toISOString()
       },
@@ -353,8 +393,43 @@ export class DataManager {
         name: 'João Santos',
         email: 'joao.santos@cidadedosaber.com',
         phone: '(11) 99999-2222',
-        specialty: 'Matemática',
+        specialties: ['3'], // IDs das especialidades
         maxWorkload: 44,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultSpecialties() {
+    return [
+      {
+        id: '1',
+        name: 'Dança Contemporânea',
+        description: 'Ensino de dança contemporânea e expressão corporal',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: 'Ballet Clássico',
+        description: 'Técnicas clássicas de ballet',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '3',
+        name: 'Matemática',
+        description: 'Ensino de matemática básica e avançada',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '4',
+        name: 'Música',
+        description: 'Teoria musical e prática instrumental',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '5',
+        name: 'Teatro',
+        description: 'Artes cênicas e interpretação',
         createdAt: new Date().toISOString()
       }
     ];
