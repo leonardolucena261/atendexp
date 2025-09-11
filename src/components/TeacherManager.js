@@ -69,7 +69,7 @@ export class TeacherManager {
     // Add filter listeners
     this.container.querySelector('#nameFilter').addEventListener('input', (e) => {
       this.nameFilter = e.target.value;
-      this.renderContent();
+      this.updateTeachersList();
     });
 
     this.container.querySelector('#periodFilter').addEventListener('change', (e) => {
@@ -95,6 +95,34 @@ export class TeacherManager {
     });
   }
 
+  updateTeachersList() {
+    const allTeachers = this.dataManager.getTeachers();
+    const teachers = this.getFilteredTeachers(allTeachers);
+    
+    // Update only the teachers grid and filter info
+    const teachersGrid = this.container.querySelector('#teachersGrid');
+    const filterInfo = this.container.querySelector('.filter-info span');
+    
+    teachersGrid.innerHTML = teachers.map(teacher => this.renderTeacherCard(teacher)).join('');
+    filterInfo.textContent = `📊 ${teachers.length} professor${teachers.length !== 1 ? 'es' : ''} encontrado${teachers.length !== 1 ? 's' : ''}`;
+    
+    // Re-add event listeners for teacher cards
+    teachers.forEach(teacher => {
+      const card = this.container.querySelector(`[data-teacher-id="${teacher.id}"]`);
+      
+      card.querySelector('.edit-btn').addEventListener('click', () => {
+        this.showTeacherModal(teacher);
+      });
+
+      card.querySelector('.schedule-btn').addEventListener('click', () => {
+        this.showTeacherSchedule(teacher);
+      });
+
+      card.querySelector('.delete-btn').addEventListener('click', () => {
+        this.deleteTeacher(teacher.id);
+      });
+    });
+  }
   renderTeacherCard(teacher) {
     const allClasses = this.dataManager.getClassesByTeacher(teacher.id);
     const periods = this.dataManager.getPeriods();
