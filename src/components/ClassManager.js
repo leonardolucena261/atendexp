@@ -101,6 +101,8 @@ export class ClassManager {
     const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
     const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
     const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
+    const course = this.dataManager.getCourses().find(c => c.id === classData.courseId);
+    const module = this.dataManager.getCourseModules().find(m => m.id === classData.moduleId);
     
     const capacityPercentage = room ? Math.min((classData.enrolledStudents / room.capacity) * 100, 100) : 0;
     let statusClass = 'normal';
@@ -128,16 +130,20 @@ export class ClassManager {
         </div>
         <div class="class-info">
           <div class="class-detail">
+            <span class="label">Curso:</span>
+            <span class="value">${course?.name || 'N/A'}</span>
+          </div>
+          <div class="class-detail">
+            <span class="label">Módulo/Etapa:</span>
+            <span class="value">${module?.name || 'N/A'}</span>
+          </div>
+          <div class="class-detail">
             <span class="label">Período:</span>
             <span class="value">${period?.name || 'N/A'} (${period?.year || 'N/A'})</span>
           </div>
           <div class="class-detail">
             <span class="label">Local:</span>
             <span class="value">${room?.name || 'N/A'} - ${building?.name || 'N/A'}</span>
-          </div>
-          <div class="class-detail">
-            <span class="label">Professor:</span>
-            <span class="value">${teacher?.name || 'Não atribuído'}</span>
           </div>
           <div class="class-detail">
             <span class="label">Professor:</span>
@@ -412,6 +418,32 @@ export class ClassManager {
     const modal = new Modal(title, formHtml);
     document.body.appendChild(modal.render());
 
+    // Handle course selection change
+    document.getElementById('classCourse').addEventListener('change', (e) => {
+      const courseId = e.target.value;
+      const moduleSelect = document.getElementById('classModule');
+      
+      if (courseId) {
+        const modules = this.dataManager.getModulesByCourse(courseId);
+        const sortedModules = modules.sort((a, b) => a.order - b.order);
+        
+        moduleSelect.innerHTML = `
+          <option value="">Selecione o módulo</option>
+          ${sortedModules.map(module => 
+            `<option value="${module.id}" ${classData?.moduleId === module.id ? 'selected' : ''}>
+              ${module.name} (${module.workload}h)
+            </option>`
+          ).join('')}
+        `;
+      } else {
+        moduleSelect.innerHTML = '<option value="">Primeiro selecione um curso</option>';
+      }
+    });
+
+    // Trigger course change if editing
+    if (classData?.courseId) {
+      document.getElementById('classCourse').dispatchEvent(new Event('change'));
+    }
     // Handle form submission
     const formElement = document.getElementById('classForm');
     formElement.addEventListener('submit', (e) => {
@@ -467,10 +499,11 @@ export class ClassManager {
 
   saveClassData(classId = null) {
     const name = document.getElementById('className').value;
+    const courseId = document.getElementById('classCourse').value;
+    const moduleId = document.getElementById('classModule').value;
     const periodId = document.getElementById('classPeriod').value;
     const roomId = document.getElementById('classRoom').value;
     const teacherId = document.getElementById('classTeacher').value;
-    const workload = parseInt(document.getElementById('classWorkload').value);
     const shift = document.getElementById('classShift').value;
     const startTime = document.getElementById('classStartTime').value;
     const endTime = document.getElementById('classEndTime').value;
@@ -479,6 +512,9 @@ export class ClassManager {
     const weekDays = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
       .map(checkbox => checkbox.value);
 
+    // Get workload from selected module
+    const selectedModule = this.dataManager.getCourseModules().find(m => m.id === moduleId);
+    const workload = selectedModule ? selectedModule.workload : 40;
     // Validar conflito de horários
     if (this.hasScheduleConflict(roomId, weekDays, startTime, endTime, classId)) {
       alert('⚠️ Conflito de horário detectado!\n\nJá existe uma turma cadastrada nesta sala no mesmo horário e dia da semana.\n\nPor favor, escolha um horário vago ou uma sala diferente.');
@@ -492,6 +528,8 @@ export class ClassManager {
     }
     const classData = {
       name,
+      courseId,
+      moduleId,
       periodId,
       roomId,
       workload,

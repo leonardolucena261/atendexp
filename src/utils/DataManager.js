@@ -6,6 +6,8 @@ export class DataManager {
     this.periods = this.loadPeriods();
     this.teachers = this.loadTeachers();
     this.specialties = this.loadSpecialties();
+    this.courses = this.loadCourses();
+    this.courseModules = this.loadCourseModules();
   }
 
   // Building methods
@@ -213,6 +215,88 @@ export class DataManager {
     this.saveSpecialties();
   }
 
+  // Course methods
+  getCourses() {
+    return this.courses;
+  }
+
+  addCourse(courseData) {
+    const course = {
+      id: this.generateId(),
+      ...courseData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.courses.push(course);
+    this.saveCourses();
+    return course;
+  }
+
+  updateCourse(id, courseData) {
+    const index = this.courses.findIndex(c => c.id === id);
+    if (index !== -1) {
+      this.courses[index] = { ...this.courses[index], ...courseData };
+      this.saveCourses();
+    }
+  }
+
+  deleteCourse(id) {
+    this.courses = this.courses.filter(c => c.id !== id);
+    // Also delete all modules for this course
+    this.courseModules = this.courseModules.filter(m => m.courseId !== id);
+    this.saveCourses();
+    this.saveCourseModules();
+  }
+
+  // Course Module methods
+  getCourseModules() {
+    return this.courseModules;
+  }
+
+  getModulesByCourse(courseId) {
+    return this.courseModules.filter(module => module.courseId === courseId);
+  }
+
+  addCourseModule(moduleData) {
+    const module = {
+      id: this.generateId(),
+      ...moduleData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.courseModules.push(module);
+    this.saveCourseModules();
+    return module;
+  }
+
+  updateCourseModule(id, moduleData) {
+    const index = this.courseModules.findIndex(m => m.id === id);
+    if (index !== -1) {
+      this.courseModules[index] = { ...this.courseModules[index], ...moduleData };
+      this.saveCourseModules();
+    }
+  }
+
+  deleteCourseModule(id) {
+    this.courseModules = this.courseModules.filter(m => m.id !== id);
+    this.saveCourseModules();
+  }
+
+  // Get course with calculated total workload
+  getCourseWithWorkload(courseId) {
+    const course = this.courses.find(c => c.id === courseId);
+    if (!course) return null;
+
+    const modules = this.getModulesByCourse(courseId);
+    const totalWorkload = modules.reduce((total, module) => total + (module.workload || 0), 0);
+
+    return {
+      ...course,
+      modules,
+      totalWorkload
+    };
+  }
+
   // Storage methods
   loadBuildings() {
     const stored = localStorage.getItem('cidade_saber_buildings');
@@ -266,6 +350,24 @@ export class DataManager {
 
   saveSpecialties() {
     localStorage.setItem('cidade_saber_specialties', JSON.stringify(this.specialties));
+  }
+
+  loadCourses() {
+    const stored = localStorage.getItem('cidade_saber_courses');
+    return stored ? JSON.parse(stored) : this.getDefaultCourses();
+  }
+
+  saveCourses() {
+    localStorage.setItem('cidade_saber_courses', JSON.stringify(this.courses));
+  }
+
+  loadCourseModules() {
+    const stored = localStorage.getItem('cidade_saber_course_modules');
+    return stored ? JSON.parse(stored) : this.getDefaultCourseModules();
+  }
+
+  saveCourseModules() {
+    localStorage.setItem('cidade_saber_course_modules', JSON.stringify(this.courseModules));
   }
 
   // Default data
@@ -325,6 +427,8 @@ export class DataManager {
       {
         id: '1',
         name: 'Dança Contemporânea - Iniciante',
+        courseId: '1',
+        moduleId: '1',
         periodId: '1',
         roomId: '3',
         teacherId: '1',
@@ -339,10 +443,12 @@ export class DataManager {
       {
         id: '2',
         name: 'Matemática Básica',
+        courseId: '2',
+        moduleId: '4',
         periodId: '1',
         roomId: '1',
         teacherId: '2',
-        workload: 60,
+        workload: 30,
         shift: 'Matutino',
         startTime: '08:00',
         endTime: '10:00',
@@ -430,6 +536,77 @@ export class DataManager {
         id: '5',
         name: 'Teatro',
         description: 'Artes cênicas e interpretação',
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultCourses() {
+    return [
+      {
+        id: '1',
+        name: 'Dança Contemporânea Completo',
+        description: 'Curso completo de dança contemporânea do básico ao avançado',
+        category: 'Cultura',
+        duration: '12 meses',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: 'Matemática Fundamental',
+        description: 'Curso de matemática básica e fundamental',
+        category: 'Educação',
+        duration: '8 meses',
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultCourseModules() {
+    return [
+      {
+        id: '1',
+        courseId: '1',
+        name: 'Módulo 1 - Fundamentos',
+        description: 'Introdução aos fundamentos da dança contemporânea',
+        order: 1,
+        workload: 40,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        courseId: '1',
+        name: 'Módulo 2 - Técnicas Intermediárias',
+        description: 'Desenvolvimento de técnicas intermediárias',
+        order: 2,
+        workload: 60,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '3',
+        courseId: '1',
+        name: 'Módulo 3 - Técnicas Avançadas',
+        description: 'Aperfeiçoamento e técnicas avançadas',
+        order: 3,
+        workload: 80,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '4',
+        courseId: '2',
+        name: 'Unidade 1 - Aritmética Básica',
+        description: 'Operações fundamentais e conceitos básicos',
+        order: 1,
+        workload: 30,
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '5',
+        courseId: '2',
+        name: 'Unidade 2 - Álgebra Elementar',
+        description: 'Introdução à álgebra e equações',
+        order: 2,
+        workload: 40,
         createdAt: new Date().toISOString()
       }
     ];

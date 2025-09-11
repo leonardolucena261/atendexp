@@ -77,6 +77,12 @@ export class AdminSystem {
       case 'classes':
         component = new ClassManager(this.dataManager, this.currentBuildingFilter);
         break;
+      case 'courses':
+        component = new CourseManager(this.dataManager);
+        break;
+      case 'class-progress':
+        component = new ClassProgressView(this.dataManager);
+        break;
       case 'periods':
         component = new PeriodManager(this.dataManager);
         break;

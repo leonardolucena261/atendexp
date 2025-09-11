@@ -26,7 +26,17 @@ export class Sidebar {
       { 
         id: 'classes', 
         label: 'Turmas', 
-        icon: '👥'
+        icon: '👥',
+        hasSubmenu: true,
+        submenu: [
+          { id: 'classes-manage', label: 'Gerenciar Turmas', icon: '👥' },
+          { id: 'class-progress', label: 'Progressão das Turmas', icon: '📈' }
+        ]
+      },
+      { 
+        id: 'courses', 
+        label: 'Cursos', 
+        icon: '📚'
       },
       { 
         id: 'teachers', 
@@ -116,6 +126,10 @@ export class Sidebar {
             this.onNavigate('buildings');
           } else if (subItem.id === 'rooms') {
             this.onNavigate('rooms');
+          } else if (subItem.id === 'classes-manage') {
+            this.onNavigate('classes');
+          } else if (subItem.id === 'class-progress') {
+            this.onNavigate('class-progress');
           } else if (subItem.id === 'teachers-manage') {
             this.onNavigate('teachers');
           } else if (subItem.id === 'teacher-schedules') {
@@ -179,6 +193,22 @@ export class Sidebar {
       
       // Activate the correct submenu item
       const targetView = view === 'buildings' || view === 'buildings-manage' ? 'buildings-manage' : 'rooms';
+      const activeItem = document.querySelector(`[data-view="${targetView}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    } else if (view === 'classes' || view === 'class-progress' || view === 'classes-manage') {
+      // Expand classes submenu
+      this.expandedMenus.add('classes');
+      const submenu = document.getElementById('submenu-classes');
+      const arrow = document.querySelector('[data-view="classes"] .submenu-arrow');
+      if (submenu && arrow) {
+        submenu.classList.add('expanded');
+        arrow.style.transform = 'rotate(90deg)';
+      }
+      
+      // Activate the correct submenu item
+      const targetView = view === 'classes' ? 'classes-manage' : view;
       const activeItem = document.querySelector(`[data-view="${targetView}"]`);
       if (activeItem) {
         activeItem.classList.add('active');
