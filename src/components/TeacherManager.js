@@ -529,7 +529,6 @@ export class TeacherManager {
           .join(' ').toLowerCase();
         
         return teacher.name.toLowerCase().includes(searchTerm) ||
-          teacher.specialty.toLowerCase().includes(searchTerm) ||
           teacher.email.toLowerCase().includes(searchTerm) ||
           teacherSpecialties.includes(searchTerm);
       });
