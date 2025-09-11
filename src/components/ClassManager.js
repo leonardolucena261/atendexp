@@ -960,101 +960,11 @@ export class ClassManager {
     }, 1000);
   }
 
-  showStudentsModal(classData) {
-    const enrollments = this.dataManager.getEnrollmentsByClass(classData.id);
-    const activeEnrollments = enrollments.filter(e => e.status === 'active');
-    const students = activeEnrollments.map(enrollment => {
-      const student = this.dataManager.getStudents().find(s => s.id === enrollment.studentId);
-      return {
-        ...student,
-        enrollmentId: enrollment.id,
-        enrollmentDate: enrollment.enrollmentDate
-      };
-    }).filter(Boolean);
-
-    const room = this.dataManager.getRooms().find(r => r.id === classData.roomId);
-    const availableSpots = room ? room.capacity - students.length : 0;
-
-    const modalContent = `
-      <div class="students-manager">
-        <div class="students-header">
-          <div class="class-info">
-            <h4>${classData.name}</h4>
-            <p>Alunos matriculados: ${students.length}/${room?.capacity || 0} • Vagas disponíveis: ${availableSpots}</p>
-          </div>
-          <div class="students-actions">
-            <button class="btn btn-primary" id="printStudentsListBtn">
-              🖨️ Imprimir Lista
-            </button>
-          </div>
-        </div>
-        
-        <div class="students-list" id="studentsList">
-          ${students.length > 0 ? `
-            <div class="students-table">
-              <div class="table-header">
-                <div class="header-cell">Nome</div>
-                <div class="header-cell">Email</div>
-                <div class="header-cell">Telefone</div>
-                <div class="header-cell">Data Matrícula</div>
-                <div class="header-cell">Ações</div>
-              </div>
-              ${students.map((student, index) => `
-                <div class="table-row" data-student-id="${student.id}">
-                  <div class="table-cell">
-                    <div class="student-name">${student.name}</div>
-                    <div class="student-cpf">CPF: ${student.cpf}</div>
-                  </div>
-                  <div class="table-cell">${student.email}</div>
-                  <div class="table-cell">${student.phone}</div>
-                  <div class="table-cell">
-                    ${new Date(student.enrollmentDate).toLocaleDateString('pt-BR')}
-                  </div>
-                  <div class="table-cell">
-                    <button class="btn-icon cancel-enrollment-btn" 
-                            data-enrollment-id="${student.enrollmentId}" 
-                            data-student-name="${student.name}"
-                            title="Cancelar matrícula">
-                      ❌
-                    </button>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          ` : `
-            <div class="empty-students">
-              <p>Nenhum aluno matriculado nesta turma.</p>
-            </div>
-          `}
-        </div>
-      </div>
-    `;
-
-    const modal = new Modal(`Alunos - ${classData.name}`, modalContent);
-    document.body.appendChild(modal.render());
-
-    // Print students list button
-    const printBtn = document.getElementById('printStudentsListBtn');
-    if (printBtn) {
-      printBtn.addEventListener('click', () => {
-        this.printStudentsList(classData, students);
-      });
+  navigateToClassStudents(classId) {
+    // Navigate to class student management view
+    if (window.adminSystem) {
+      window.adminSystem.handleNavigation('class-students', classId);
     }
-
-    // Cancel enrollment buttons
-    students.forEach(student => {
-      const cancelBtn = document.querySelector(`[data-enrollment-id="${student.enrollmentId}"]`);
-      if (cancelBtn) {
-        cancelBtn.addEventListener('click', () => {
-          const studentName = cancelBtn.getAttribute('data-student-name');
-          if (confirm(`Tem certeza que deseja cancelar a matrícula de ${studentName}?\n\nEsta ação irá:\n• Remover o aluno da turma\n• Reativar a senha utilizada na matrícula\n• Liberar a vaga para outro aluno`)) {
-            this.cancelEnrollment(student.enrollmentId, classData);
-            modal.close();
-            setTimeout(() => this.showStudentsModal(classData), 100);
-          }
-        });
-      }
-    });
   }
 
   printStudentsList(classData, students) {

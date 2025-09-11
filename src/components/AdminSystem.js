@@ -108,6 +108,9 @@ export class AdminSystem {
       case 'enrollments':
         component = new EnrollmentManager(this.dataManager);
         break;
+      case 'class-students':
+        component = new ClassStudentManager(this.dataManager, this.currentClassId);
+        break;
       default:
         component = new Dashboard(this.dataManager);
     }
