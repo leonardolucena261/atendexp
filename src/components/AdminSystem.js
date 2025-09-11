@@ -9,6 +9,8 @@ import { ClassProgressView } from './ClassProgressView.js';
 import { PeriodManager } from './PeriodManager.js';
 import { TeacherManager } from './TeacherManager.js';
 import { TeacherScheduleView } from './TeacherScheduleView.js';
+import { StudentManager } from './StudentManager.js';
+import { EnrollmentManager } from './EnrollmentManager.js';
 
 export class AdminSystem {
   constructor(dataManager) {
@@ -99,6 +101,12 @@ export class AdminSystem {
             component.refreshSchedule();
           }
         });
+        break;
+      case 'students':
+        component = new StudentManager(this.dataManager);
+        break;
+      case 'enrollments':
+        component = new EnrollmentManager(this.dataManager);
         break;
       default:
         component = new Dashboard(this.dataManager);

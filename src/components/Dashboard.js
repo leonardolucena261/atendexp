@@ -11,6 +11,8 @@ export class Dashboard {
     const rooms = this.dataManager.getRooms();
     const classes = this.dataManager.getClasses();
     const periods = this.dataManager.getPeriods();
+    const students = this.dataManager.getStudents();
+    const enrollments = this.dataManager.getEnrollments();
     const teachers = this.dataManager.getTeachers();
 
     dashboard.innerHTML = `
@@ -45,18 +47,18 @@ export class Dashboard {
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">👨‍🏫</div>
+          <div class="stat-icon">👨‍🎓</div>
           <div class="stat-content">
-            <h3>${teachers.length}</h3>
-            <p>Professores</p>
+            <h3>${students.length}</h3>
+            <p>Alunos Cadastrados</p>
           </div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">📚</div>
+          <div class="stat-icon">📝</div>
           <div class="stat-content">
-            <h3>${periods.length}</h3>
-            <p>Períodos Letivos</p>
+            <h3>${enrollments.length}</h3>
+            <p>Matrículas Ativas</p>
           </div>
         </div>
       </div>
@@ -97,6 +99,14 @@ export class Dashboard {
             <button class="action-btn" onclick="window.adminSystem?.handleNavigation('teachers')">
               <span>👨‍🏫</span>
               Gerenciar Professores
+            </button>
+            <button class="action-btn" onclick="window.adminSystem?.handleNavigation('students')">
+              <span>👨‍🎓</span>
+              Gerenciar Alunos
+            </button>
+            <button class="action-btn" onclick="window.adminSystem?.handleNavigation('enrollments')">
+              <span>📝</span>
+              Gerenciar Matrículas
             </button>
             <button class="action-btn" onclick="window.adminSystem?.handleNavigation('periods')">
               <span>📅</span>

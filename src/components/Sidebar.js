@@ -49,6 +49,16 @@ export class Sidebar {
         ]
       },
       { 
+        id: 'students', 
+        label: 'Alunos', 
+        icon: '👨‍🎓',
+        hasSubmenu: true,
+        submenu: [
+          { id: 'students-manage', label: 'Gerenciar Alunos', icon: '👨‍🎓' },
+          { id: 'enrollments', label: 'Matrículas', icon: '📝' }
+        ]
+      },
+      { 
         id: 'periods', 
         label: 'Períodos Letivos', 
         icon: '📅'
@@ -134,6 +144,10 @@ export class Sidebar {
             this.onNavigate('teachers');
           } else if (subItem.id === 'teacher-schedules') {
             this.onNavigate('teacher-schedules');
+          } else if (subItem.id === 'students-manage') {
+            this.onNavigate('students');
+          } else if (subItem.id === 'enrollments') {
+            this.onNavigate('enrollments');
           } else {
             this.onNavigate(subItem.id);
           }
@@ -239,6 +253,22 @@ export class Sidebar {
       
       // Activate the correct submenu item
       const targetView = view === 'teachers' ? 'teachers-manage' : view;
+      const activeItem = document.querySelector(`[data-view="${targetView}"]`);
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
+    } else if (view === 'students' || view === 'enrollments' || view === 'students-manage') {
+      // Expand students submenu
+      this.expandedMenus.add('students');
+      const submenu = document.getElementById('submenu-students');
+      const arrow = document.querySelector('[data-view="students"] .submenu-arrow');
+      if (submenu && arrow) {
+        submenu.classList.add('expanded');
+        arrow.style.transform = 'rotate(90deg)';
+      }
+      
+      // Activate the correct submenu item
+      const targetView = view === 'students' ? 'students-manage' : view;
       const activeItem = document.querySelector(`[data-view="${targetView}"]`);
       if (activeItem) {
         activeItem.classList.add('active');

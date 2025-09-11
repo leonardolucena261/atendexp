@@ -8,6 +8,8 @@ export class DataManager {
     this.specialties = this.loadSpecialties();
     this.courses = this.loadCourses();
     this.courseModules = this.loadCourseModules();
+    this.students = this.loadStudents();
+    this.enrollments = this.loadEnrollments();
   }
 
   // Building methods
@@ -297,6 +299,94 @@ export class DataManager {
     };
   }
 
+  // Student methods
+  getStudents() {
+    return this.students;
+  }
+
+  addStudent(studentData) {
+    const student = {
+      id: this.generateId(),
+      ...studentData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.students.push(student);
+    this.saveStudents();
+    return student;
+  }
+
+  updateStudent(id, studentData) {
+    const index = this.students.findIndex(s => s.id === id);
+    if (index !== -1) {
+      this.students[index] = { ...this.students[index], ...studentData };
+      this.saveStudents();
+    }
+  }
+
+  deleteStudent(id) {
+    this.students = this.students.filter(s => s.id !== id);
+    // Remove student from enrollments
+    this.enrollments = this.enrollments.filter(e => e.studentId !== id);
+    this.saveStudents();
+    this.saveEnrollments();
+  }
+
+  // Enrollment methods
+  getEnrollments() {
+    return this.enrollments;
+  }
+
+  getEnrollmentsByStudent(studentId) {
+    return this.enrollments.filter(e => e.studentId === studentId);
+  }
+
+  getEnrollmentsByClass(classId) {
+    return this.enrollments.filter(e => e.classId === classId);
+  }
+
+  addEnrollment(enrollmentData) {
+    const enrollment = {
+      id: this.generateId(),
+      ...enrollmentData,
+      createdAt: new Date().toISOString()
+    };
+    
+    this.enrollments.push(enrollment);
+    this.saveEnrollments();
+    return enrollment;
+  }
+
+  updateEnrollment(id, enrollmentData) {
+    const index = this.enrollments.findIndex(e => e.id === id);
+    if (index !== -1) {
+      this.enrollments[index] = { ...this.enrollments[index], ...enrollmentData };
+      this.saveEnrollments();
+    }
+  }
+
+  deleteEnrollment(id) {
+    this.enrollments = this.enrollments.filter(e => e.id !== id);
+    this.saveEnrollments();
+  }
+
+  // Check if student is already enrolled in a class
+  isStudentEnrolled(studentId, classId) {
+    return this.enrollments.some(e => e.studentId === studentId && e.classId === classId);
+  }
+
+  // Get available spots in a class
+  getAvailableSpots(classId) {
+    const classData = this.classes.find(c => c.id === classId);
+    if (!classData) return 0;
+    
+    const room = this.rooms.find(r => r.id === classData.roomId);
+    if (!room) return 0;
+    
+    const enrolledCount = this.getEnrollmentsByClass(classId).length;
+    return Math.max(0, room.capacity - enrolledCount);
+  }
+
   // Storage methods
   loadBuildings() {
     const stored = localStorage.getItem('cidade_saber_buildings');
@@ -368,6 +458,24 @@ export class DataManager {
 
   saveCourseModules() {
     localStorage.setItem('cidade_saber_course_modules', JSON.stringify(this.courseModules));
+  }
+
+  loadStudents() {
+    const stored = localStorage.getItem('cidade_saber_students');
+    return stored ? JSON.parse(stored) : this.getDefaultStudents();
+  }
+
+  saveStudents() {
+    localStorage.setItem('cidade_saber_students', JSON.stringify(this.students));
+  }
+
+  loadEnrollments() {
+    const stored = localStorage.getItem('cidade_saber_enrollments');
+    return stored ? JSON.parse(stored) : this.getDefaultEnrollments();
+  }
+
+  saveEnrollments() {
+    localStorage.setItem('cidade_saber_enrollments', JSON.stringify(this.enrollments));
   }
 
   // Default data
@@ -607,6 +715,76 @@ export class DataManager {
         description: 'Introdução à álgebra e equações',
         order: 2,
         workload: 40,
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultStudents() {
+    return [
+      {
+        id: '1',
+        name: 'Ana Silva Santos',
+        email: 'ana.santos@email.com',
+        phone: '(11) 99999-1111',
+        birthDate: '1995-03-15',
+        cpf: '123.456.789-01',
+        address: {
+          street: 'Rua das Flores, 123',
+          neighborhood: 'Centro',
+          city: 'São Paulo',
+          state: 'SP',
+          zipCode: '01234-567'
+        },
+        emergencyContact: {
+          name: 'João Santos',
+          phone: '(11) 99999-2222',
+          relationship: 'Pai'
+        },
+        status: 'active',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        name: 'Carlos Oliveira',
+        email: 'carlos.oliveira@email.com',
+        phone: '(11) 99999-3333',
+        birthDate: '1988-07-22',
+        cpf: '987.654.321-09',
+        address: {
+          street: 'Av. Principal, 456',
+          neighborhood: 'Vila Nova',
+          city: 'São Paulo',
+          state: 'SP',
+          zipCode: '09876-543'
+        },
+        emergencyContact: {
+          name: 'Maria Oliveira',
+          phone: '(11) 99999-4444',
+          relationship: 'Esposa'
+        },
+        status: 'active',
+        createdAt: new Date().toISOString()
+      }
+    ];
+  }
+
+  getDefaultEnrollments() {
+    return [
+      {
+        id: '1',
+        studentId: '1',
+        classId: '1',
+        enrollmentDate: new Date().toISOString(),
+        status: 'active',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: '2',
+        studentId: '2',
+        classId: '2',
+        enrollmentDate: new Date().toISOString(),
+        status: 'active',
         createdAt: new Date().toISOString()
       }
     ];
