@@ -10,6 +10,7 @@ export class DataManager {
     this.courseModules = this.loadCourseModules();
     this.students = this.loadStudents();
     this.enrollments = this.loadEnrollments();
+    this.passwords = this.loadPasswords();
   }
 
   // Building methods
@@ -793,5 +794,74 @@ export class DataManager {
   // Utility methods
   generateId() {
     return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  }
+
+  // Password methods
+  getPasswordsByClass(classId) {
+    return this.passwords.filter(password => password.classId === classId);
+  }
+
+  generatePasswordsForClass(classId, quantity) {
+    const passwords = [];
+    const classData = this.classes.find(c => c.id === classId);
+    if (!classData) return [];
+
+    for (let i = 0; i < quantity; i++) {
+      const password = {
+        id: this.generateId(),
+        classId: classId,
+        code: this.generatePasswordCode(),
+        qrCode: this.generateQRCodeData(classId),
+        isUsed: false,
+        createdAt: new Date().toISOString(),
+        usedAt: null,
+        studentId: null
+      };
+      passwords.push(password);
+    }
+
+    this.passwords.push(...passwords);
+    this.savePasswords();
+    return passwords;
+  }
+
+  generatePasswordCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  generateQRCodeData(classId) {
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/enroll/${classId}`;
+  }
+
+  usePassword(passwordId, studentId) {
+    const password = this.passwords.find(p => p.id === passwordId);
+    if (password && !password.isUsed) {
+      password.isUsed = true;
+      password.usedAt = new Date().toISOString();
+      password.studentId = studentId;
+      this.savePasswords();
+      return true;
+    }
+    return false;
+  }
+
+  deletePassword(passwordId) {
+    this.passwords = this.passwords.filter(p => p.id !== passwordId);
+    this.savePasswords();
+  }
+
+  loadPasswords() {
+    const stored = localStorage.getItem('cidade_saber_passwords');
+    return stored ? JSON.parse(stored) : [];
+  }
+
+  savePasswords() {
+    localStorage.setItem('cidade_saber_passwords', JSON.stringify(this.passwords));
   }
 }

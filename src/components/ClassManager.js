@@ -125,6 +125,7 @@ export class ClassManager {
           <h3>${classData.name}</h3>
           <div class="class-actions">
             <button class="btn-icon edit-btn" title="Editar">✏️</button>
+            <button class="btn-icon passwords-btn" title="Gerenciar senhas">🎫</button>
             <button class="btn-icon delete-btn" title="Excluir">🗑️</button>
           </div>
         </div>
@@ -483,6 +484,13 @@ export class ClassManager {
           editBtn.removeEventListener('click', this.handleEditClick);
           this.handleEditClick = () => this.showClassModal(classItem);
           editBtn.addEventListener('click', this.handleEditClick);
+        }
+        
+        const passwordsBtn = card.querySelector('.passwords-btn');
+        if (passwordsBtn) {
+          passwordsBtn.removeEventListener('click', this.handlePasswordsClick);
+          this.handlePasswordsClick = () => this.showPasswordsModal(classItem);
+          passwordsBtn.addEventListener('click', this.handlePasswordsClick);
         }
         
         if (deleteBtn) {
