@@ -1105,6 +1105,126 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.students-manager {
+  width: 100%;
+}
+
+.students-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.students-header .class-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+}
+
+.students-header .class-info p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.students-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.students-table {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 0.5fr;
+  background: var(--accent-gradient);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.header-cell {
+  padding: 1rem 0.75rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-cell:last-child {
+  border-right: none;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1fr 1fr 0.5fr;
+  border-bottom: 1px solid var(--border-light);
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background: var(--bg-tertiary);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-cell {
+  padding: 1rem 0.75rem;
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.table-cell:last-child {
+  border-right: none;
+  justify-content: center;
+}
+
+.student-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.student-cpf {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.cancel-enrollment-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.cancel-enrollment-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.1);
+}
+
+.empty-students {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+
+.empty-students p {
+  font-size: 1rem;
+  margin: 0;
+}
+
 /* Capacity Bar */
 .capacity-section {
   margin-top: 1.5rem;
