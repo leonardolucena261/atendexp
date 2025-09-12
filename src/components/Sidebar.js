@@ -227,6 +227,20 @@ export class Sidebar {
       if (activeItem) {
         activeItem.classList.add('active');
       }
+    } else if (view === 'class-students') {
+      // Expand classes submenu and highlight classes-manage for class-students view
+      this.expandedMenus.add('classes');
+      const submenu = document.getElementById('submenu-classes');
+      const arrow = document.querySelector('[data-view="classes"] .submenu-arrow');
+      if (submenu && arrow) {
+        submenu.classList.add('expanded');
+        arrow.style.transform = 'rotate(90deg)';
+      }
+      
+      const activeItem = document.querySelector('[data-view="classes-manage"]');
+      if (activeItem) {
+        activeItem.classList.add('active');
+      }
     } else if (view === 'occupancy-report' || view === 'class-report') {
       // Expand reports submenu
       this.expandedMenus.add('reports');

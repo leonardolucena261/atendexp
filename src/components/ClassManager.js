@@ -497,7 +497,11 @@ export class ClassManager {
         const studentsBtn = card.querySelector('.students-btn');
         if (studentsBtn) {
           studentsBtn.removeEventListener('click', this.handleStudentsClick);
-          this.handleStudentsClick = () => this.showStudentsModal(classItem);
+          this.handleStudentsClick = () => {
+            if (window.adminSystem) {
+              window.adminSystem.handleNavigation('class-students', classItem.id);
+            }
+          };
           studentsBtn.addEventListener('click', this.handleStudentsClick);
         }
         

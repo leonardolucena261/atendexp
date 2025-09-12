@@ -54,6 +54,12 @@ export class AdminSystem {
   handleNavigation(view, buildingId = null) {
     this.currentView = view;
     this.currentBuildingFilter = buildingId;
+    
+    // Set currentClassId when navigating to class-students
+    if (view === 'class-students') {
+      this.currentClassId = buildingId; // buildingId is actually classId in this context
+    }
+    
     this.renderCurrentView();
     
     // Update sidebar active state
