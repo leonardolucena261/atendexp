@@ -3798,6 +3798,76 @@ body {
   color: #64748b;
 }
 
+.attendance-date-modal {
+  padding: 20px;
+}
+
+.attendance-date-modal .modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.attendance-date-modal .modal-header h4 {
+  color: #6366f1;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.attendance-date-modal .modal-header p {
+  color: #64748b;
+  margin: 0;
+}
+
+.date-form {
+  margin-bottom: 20px;
+}
+
+.date-form .form-group {
+  margin-bottom: 15px;
+}
+
+.date-form label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.date-form input[type="date"] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.date-form input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.class-info-summary {
+  background: var(--bg-tertiary);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.class-info-summary h5 {
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  font-size: 16px;
+}
+
+.class-info-summary p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 14px;
+}
+
 /* Class Student Manager Styles */
 .class-student-manager {
   width: 100%;

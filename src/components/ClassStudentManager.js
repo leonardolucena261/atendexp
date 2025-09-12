@@ -59,6 +59,9 @@ export class ClassStudentManager {
           <button class="btn btn-primary" id="printStudentsListBtn">
             🖨️ Imprimir Lista
           </button>
+          <button class="btn btn-primary" id="printAttendanceListBtn">
+            📋 Imprimir Frequência
+          </button>
         </div>
       </div>
 
@@ -205,6 +208,14 @@ export class ClassStudentManager {
     if (printBtn) {
       printBtn.addEventListener('click', () => {
         this.printStudentsList(classData, students);
+      });
+    }
+
+    // Print attendance button
+    const printAttendanceBtn = this.container.querySelector('#printAttendanceListBtn');
+    if (printAttendanceBtn) {
+      printAttendanceBtn.addEventListener('click', () => {
+        this.showAttendanceDateModal(classData, students);
       });
     }
 
@@ -423,6 +434,402 @@ export class ClassStudentManager {
         <div class="footer">
           <p>Documento gerado pelo Sistema Administrativo - Cidade do Saber</p>
           <p>Impresso em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+        </div>
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      
+      printWindow.addEventListener('afterprint', () => {
+        printWindow.close();
+      });
+    }, 1000);
+  }
+
+  showAttendanceDateModal(classData, students) {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const modalContent = `
+      <div class="attendance-date-modal">
+        <div class="modal-header">
+          <h4>📋 Lista de Frequência</h4>
+          <p>Selecione a data para verificação da frequência</p>
+        </div>
+        
+        <div class="date-form">
+          <div class="form-group">
+            <label for="attendanceDate">Data da Verificação:</label>
+            <input 
+              type="date" 
+              id="attendanceDate" 
+              value="${today}"
+              max="${today}"
+              required
+            >
+          </div>
+          
+          <div class="class-info-summary">
+            <h5>${classData.name}</h5>
+            <p>${students.length} aluno${students.length !== 1 ? 's' : ''} matriculado${students.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="cancelAttendanceBtn">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="generateAttendanceBtn">Gerar Lista</button>
+        </div>
+      </div>
+    `;
+
+    const modal = new Modal('Lista de Frequência', modalContent);
+    document.body.appendChild(modal.render());
+
+    document.getElementById('generateAttendanceBtn').addEventListener('click', () => {
+      const selectedDate = document.getElementById('attendanceDate').value;
+      if (selectedDate) {
+        this.printAttendanceList(classData, students, selectedDate);
+        modal.close();
+      } else {
+        alert('Por favor, selecione uma data.');
+      }
+    });
+
+    document.getElementById('cancelAttendanceBtn').addEventListener('click', () => {
+      modal.close();
+    });
+  }
+
+  printAttendanceList(classData, students, attendanceDate) {
+    if (students.length === 0) {
+      alert('Nenhum aluno matriculado para gerar lista de frequência.');
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=1200,height=800');
+    
+    if (!printWindow) {
+      alert('🚫 Pop-up bloqueado!\n\nPor favor, permita pop-ups para este site e tente novamente.');
+      return;
+    }
+
+    const course = this.dataManager.getCourses().find(c => c.id === classData.courseId);
+    const module = this.dataManager.getCourseModules().find(m => m.id === classData.moduleId);
+    const period = this.dataManager.getPeriods().find(p => p.id === classData.periodId);
+    const room = this.dataManager.getRooms().find(r => r.id === classData.roomId);
+    const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
+    const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
+    const formattedDate = new Date(attendanceDate).toLocaleDateString('pt-BR');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Lista de Frequência - ${classData.name}</title>
+        <meta charset="UTF-8">
+        <style>
+          @page {
+            size: A4;
+            margin: 15mm;
+          }
+          
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            font-size: 12px;
+            line-height: 1.4;
+          }
+          
+          .header { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            border-bottom: 3px solid #6366f1;
+            padding-bottom: 15px;
+          }
+          
+          .header h1 {
+            color: #6366f1;
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            font-weight: bold;
+          }
+          
+          .header h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            color: #1e293b;
+          }
+          
+          .date-highlight {
+            background: #dbeafe;
+            border: 2px solid #6366f1;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 15px 0;
+            font-size: 16px;
+            font-weight: bold;
+            color: #1e40af;
+          }
+          
+          .class-info { 
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }
+          
+          .class-info h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 14px;
+          }
+          
+          .class-info p {
+            margin: 4px 0;
+            font-size: 12px;
+          }
+          
+          .attendance-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 30px;
+          }
+          
+          .attendance-table th, .attendance-table td { 
+            border: 2px solid #374151; 
+            padding: 12px 8px; 
+            text-align: left; 
+            vertical-align: middle;
+          }
+          
+          .attendance-table th { 
+            background-color: #6366f1; 
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+          }
+          
+          .attendance-table td {
+            font-size: 11px;
+            height: 50px;
+          }
+          
+          .student-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+          }
+          
+          .student-info {
+            color: #64748b;
+            font-size: 10px;
+          }
+          
+          .signature-cell {
+            text-align: center;
+            width: 120px;
+            position: relative;
+          }
+          
+          .signature-line {
+            border-bottom: 1px solid #374151;
+            height: 30px;
+            margin: 5px 0;
+          }
+          
+          .signature-label {
+            font-size: 9px;
+            color: #64748b;
+            margin-top: 2px;
+          }
+          
+          .teacher-section {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            background: #f8fafc;
+          }
+          
+          .teacher-section h3 {
+            color: #6366f1;
+            margin-top: 0;
+            margin-bottom: 15px;
+          }
+          
+          .teacher-signature {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+          }
+          
+          .signature-field {
+            text-align: center;
+          }
+          
+          .signature-field .line {
+            border-bottom: 2px solid #374151;
+            height: 40px;
+            margin-bottom: 8px;
+          }
+          
+          .signature-field label {
+            font-weight: bold;
+            font-size: 11px;
+          }
+          
+          .instructions {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 11px;
+          }
+          
+          .instructions h4 {
+            color: #92400e;
+            margin-top: 0;
+            margin-bottom: 10px;
+          }
+          
+          .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+          }
+          
+          .instructions li {
+            margin-bottom: 5px;
+          }
+          
+          .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+          }
+          
+          @media print { 
+            body { 
+              margin: 0;
+              padding: 10px;
+              font-size: 11px;
+            }
+            .attendance-table td {
+              height: 45px;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>📋 LISTA DE FREQUÊNCIA</h1>
+          <h2>${classData.name}</h2>
+        </div>
+        
+        <div class="date-highlight">
+          📅 Data da Verificação: ${formattedDate}
+        </div>
+        
+        <div class="class-info">
+          <div>
+            <h3>📚 Informações do Curso</h3>
+            <p><strong>Curso:</strong> ${course?.name || 'N/A'}</p>
+            <p><strong>Módulo:</strong> ${module?.name || 'N/A'}</p>
+            <p><strong>Período:</strong> ${period?.name} (${period?.year})</p>
+            <p><strong>Professor:</strong> ${teacher?.name || 'Não atribuído'}</p>
+          </div>
+          <div>
+            <h3>📍 Informações da Turma</h3>
+            <p><strong>Local:</strong> ${room?.name} - ${building?.name}</p>
+            <p><strong>Horário:</strong> ${classData.startTime} - ${classData.endTime}</p>
+            <p><strong>Dias:</strong> ${classData.weekDays.join(', ')}</p>
+            <p><strong>Total de Alunos:</strong> ${students.length}</p>
+          </div>
+        </div>
+        
+        <table class="attendance-table">
+          <thead>
+            <tr>
+              <th style="width: 5%">#</th>
+              <th style="width: 35%">Nome do Aluno</th>
+              <th style="width: 15%">Presente</th>
+              <th style="width: 15%">Ausente</th>
+              <th style="width: 30%">Assinatura do Aluno</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${students.map((student, index) => `
+              <tr>
+                <td style="text-align: center; font-weight: bold;">${index + 1}</td>
+                <td>
+                  <div class="student-name">${student.name}</div>
+                  <div class="student-info">CPF: ${student.cpf}</div>
+                </td>
+                <td class="signature-cell">
+                  <div style="width: 20px; height: 20px; border: 2px solid #374151; margin: 0 auto;"></div>
+                </td>
+                <td class="signature-cell">
+                  <div style="width: 20px; height: 20px; border: 2px solid #374151; margin: 0 auto;"></div>
+                </td>
+                <td class="signature-cell">
+                  <div class="signature-line"></div>
+                  <div class="signature-label">Assinatura</div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        
+        <div class="instructions">
+          <h4>📋 Instruções para Preenchimento:</h4>
+          <ul>
+            <li><strong>Presente/Ausente:</strong> Marque com "X" a situação do aluno</li>
+            <li><strong>Assinatura do Aluno:</strong> O próprio aluno deve assinar quando presente</li>
+            <li><strong>Registro do Professor:</strong> Caso o aluno não assine, o professor deve registrar a frequência abaixo</li>
+            <li><strong>Observações:</strong> Anote justificativas de faltas quando necessário</li>
+          </ul>
+        </div>
+        
+        <div class="teacher-section">
+          <h3>👨‍🏫 Registro do Professor</h3>
+          <p><strong>Para alunos que não assinaram ou casos especiais:</strong></p>
+          
+          <div style="margin: 20px 0;">
+            <label style="font-weight: bold;">Observações e Justificativas:</label>
+            <div style="border: 1px solid #374151; height: 80px; margin-top: 5px;"></div>
+          </div>
+          
+          <div class="teacher-signature">
+            <div class="signature-field">
+              <div class="line"></div>
+              <label>Assinatura do Professor</label>
+            </div>
+            <div class="signature-field">
+              <div class="line"></div>
+              <label>Data: ${formattedDate}</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p><strong>Cidade do Saber - Sistema de Controle de Frequência</strong></p>
+          <p>Lista gerada em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
+          <p><em>Este documento deve ser arquivado para controle acadêmico</em></p>
         </div>
       </body>
       </html>
