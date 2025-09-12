@@ -523,7 +523,7 @@ export class ClassStudentManager {
     const room = this.dataManager.getRooms().find(r => r.id === classData.roomId);
     const building = this.dataManager.getBuildings().find(b => b.id === room?.buildingId);
     const teacher = this.dataManager.getTeachers().find(t => t.id === classData.teacherId);
-    const formattedDate = new Date(attendanceDate).toLocaleDateString('pt-BR');
+    const formattedDate = new Date(attendanceDate + 'T00:00:00').toLocaleDateString('pt-BR');
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -821,7 +821,7 @@ export class ClassStudentManager {
             </div>
             <div class="signature-field">
               <div class="line"></div>
-              <label>Data: ${formattedDate}</label>
+              <label>Data: ${new Date(attendanceDate + 'T00:00:00').toLocaleDateString('pt-BR')}</label>
             </div>
           </div>
         </div>
