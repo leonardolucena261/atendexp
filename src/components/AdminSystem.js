@@ -11,6 +11,7 @@ import { TeacherManager } from './TeacherManager.js';
 import { TeacherScheduleView } from './TeacherScheduleView.js';
 import { StudentManager } from './StudentManager.js';
 import { EnrollmentManager } from './EnrollmentManager.js';
+import { ClassStudentManager } from './ClassStudentManager.js';
 
 export class AdminSystem {
   constructor(dataManager) {
