@@ -190,16 +190,16 @@ sistema-gerenciamento-cursos/
 ## 🎨 Capturas de Tela
 
 ### Dashboard Principal
-![Dashboard](docs/screenshots/dashboard.png)
+![Dashboard](docs/screenshots/Screenshot_1.png)
 
 ### Gerenciamento de Cursos
-![Cursos](docs/screenshots/courses.png)
+![Cursos](docs/screenshots/Screenshot_2.png)
 
 ### Lista de Alunos Matriculados
-![Alunos](docs/screenshots/students.png)
+![Alunos](docs/screenshots/Screenshot_3.png)
 
 ### Lista de Frequência
-![Frequência](docs/screenshots/attendance.png)
+![Frequência](docs/screenshots/Screenshot_4.png)
 
 ## 🔧 Configuração Avançada
 
