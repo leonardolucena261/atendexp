@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\UserStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,5 +49,14 @@ class User extends Authenticatable
             'password' => 'hashed',
             'status' => UserStatus::class,
         ];
+    }
+
+    /**
+     * Get the panels for the user.
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Panel, User, \Illuminate\Database\Eloquent\Relations\Pivot>
+     */
+    public function panels():BelongsToMany
+    {
+        return $this->belongsToMany(Panel::class);
     }
 }
