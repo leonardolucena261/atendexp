@@ -2,6 +2,12 @@
 
 Um sistema completo para gerenciamento de cursos, turmas, alunos e matrículas, desenvolvido com tecnologias web modernas.
 
+![Laravel](https://img.shields.io/badge/Laravel-12-red)
+![FilamentPHP](https://img.shields.io/badge/FilamentPHP-4-FF69B4)
+![PHP](https://img.shields.io/badge/PHP-8.2-777BB4)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38B2AC)
+
 ## 📋 Índice
 
 - [Sobre o Projeto](#sobre-o-projeto)
