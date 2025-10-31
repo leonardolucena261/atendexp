@@ -65,14 +65,18 @@ Cole este bloco no seu `:root` para usar em toda a aplicação:
   --info: #17a2b8;
 }
 
-Você pode usar estas variáveis CSS para manter a consistência visual em toda a sua aplicação, aplicando-as em elementos como:
+Você pode usar estas variáveis CSS para manter a consistência visual 
+em toda a sua aplicação, aplicando-as em elementos como:
 
 Botões principais: var(--gradient-primary) para background
 Cabeçalhos: var(--primary-violet)
 Textos: var(--dark-graphite)
 Fundos: var(--background-light)
 Elementos de destaque: var(--primary-magenta)
-Esta paleta de cores reflete a identidade visual moderna e tecnológica do AtendeXP, mantendo a consistência com o logo e os elementos visuais que criamos.
+
+Esta paleta de cores reflete a identidade visual moderna e
+tecnológica do AtendeXP, mantendo a consistência com o logo e 
+os elementos visuais que criamos.
 
 Paleta de Cores Principal:
 Cores Primárias:
