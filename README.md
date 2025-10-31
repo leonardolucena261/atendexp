@@ -1,12 +1,16 @@
-# 🎓 Sistema de Gerenciamento de Cursos
-
-Um sistema completo para gerenciamento de cursos, turmas, alunos e matrículas, desenvolvido com tecnologias web modernas.
+![Capa](docs/logos/capa.png)
 
 ![Laravel](https://img.shields.io/badge/Laravel-12-red)
 ![FilamentPHP](https://img.shields.io/badge/FilamentPHP-4-FF69B4)
 ![PHP](https://img.shields.io/badge/PHP-8.2-777BB4)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0-blue)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-38B2AC)
+
+# 🎓 Sistema de Gerenciamento de Cursos
+
+![logo](docs/logos/logo.png)
+
+Um sistema completo para gerenciamento de cursos, turmas, alunos e matrículas, desenvolvido com tecnologias web modernas.
 
 ## 📋 Índice
 
@@ -190,16 +194,16 @@ sistema-gerenciamento-cursos/
 ## 🎨 Capturas de Tela
 
 ### Dashboard Principal
-![Dashboard](doc/screenshots/Screenshot_1.png)
+![Dashboard](docs/screenshots/Screenshot_1.png)
 
 ### Gerenciamento de Cursos
-![Cursos](doc/screenshots/Screenshot_2.png)
+![Cursos](docs/screenshots/Screenshot_2.png)
 
 ### Lista de Alunos Matriculados
-![Alunos](doc/screenshots/Screenshot_3.png)
+![Alunos](docs/screenshots/Screenshot_3.png)
 
 ### Lista de Frequência
-![Frequência](doc/screenshots/Screenshot_4.png)
+![Frequência](docs/screenshots/Screenshot_4.png)
 
 ## 🔧 Configuração Avançada
 
