@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Enums\UserStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -30,7 +31,12 @@ class UsersTable
                     ->trueIcon('heroicon-o-check-circle')
                     ->falseIcon('heroicon-o-x-circle'),
                 TextColumn::make('status')
-                    ->badge(),
+                    ->badge()
+                    ->label('Status')
+                    ->color(fn ($record) => match ($record->status) {
+                        UserStatus::HABILITADO => 'success',
+                        UserStatus::INABILITADO => 'danger',
+                    }),
                 TextColumn::make('panels_count')
                     ->label('Painéis')
                     ->counts('panels'),
