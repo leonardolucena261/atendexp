@@ -16,9 +16,13 @@ class PanelsTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Título'),
                 TextColumn::make('slug')
                     ->searchable(),
+                TextColumn::make('users_count')
+                    ->label('Usuários')
+                    ->counts('users'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

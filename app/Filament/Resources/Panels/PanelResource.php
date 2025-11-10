@@ -15,12 +15,17 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class PanelResource extends Resource
 {
     protected static ?string $model = Panel::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static UnitEnum|string|null $navigationGroup = 'Administração';
+    protected static ?string $navigationLabel = 'Painéis';
+    protected static ?string $modelLabel = 'Painéis';
+
 
     protected static ?string $recordTitleAttribute = 'name';
 

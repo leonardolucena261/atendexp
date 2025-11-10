@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -16,15 +17,23 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(),
-                TextColumn::make('email')
-                    ->label('Email address')
-                    ->searchable(),
-                TextColumn::make('email_verified_at')
-                    ->dateTime()
+                    ->searchable()
+                    ->label('Nome')
                     ->sortable(),
+                TextColumn::make('email')
+                    ->label('Endereço de E-mail')
+                    ->searchable(),
+                IconColumn::make('email_verified_at')
+                    ->label('Conta verificada')
+                    ->getStateUsing(fn ($record) => !is_null($record->email_verified_at))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-x-circle'),
                 TextColumn::make('status')
                     ->badge(),
+                TextColumn::make('panels_count')
+                    ->label('Painéis')
+                    ->counts('panels'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
