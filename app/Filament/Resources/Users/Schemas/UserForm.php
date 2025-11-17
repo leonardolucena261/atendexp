@@ -21,14 +21,19 @@ class UserForm
                     ->rules(['min:3', 'max:255'])
                     ->required()
                     ->validationMessages([
-                        'required'=> 'O nome é obrigatório.',
-                        'min'=> 'O nome deve ter pelo menos 3 caracteres.',
-                        'max' => 'O nome deve ter no máximo 255 caracteres.'
+                        'required'  => 'O nome é obrigatório.',
+                        'min'       => 'O nome deve ter pelo menos 3 caracteres.',
+                        'max'       => 'O nome deve ter no máximo 255 caracteres.'
                     ]),
                 TextInput::make('whatsapp_phone')
                     ->label('Telefone')
                     ->placeholder('Telefone de Whatsapp (DDD) 9xxxx-yyyy')
-                    ->mask('(99) 99999-9999'),
+                    ->unique()
+                    ->mask('(99) 99999-9999')
+                    ->validationMessages([
+                        'required'  => 'O telefone é obrigatório',
+                        'unique'    => 'Este telefone já está sendo utilizado.'
+                    ]),
                 TextInput::make('email')
                     ->label('Endereço de email')
                     ->placeholder('Informe seu melhor email.')
@@ -36,12 +41,13 @@ class UserForm
                     ->unique()
                     ->required()
                     ->validationMessages([
-                        'required'=> 'O nome é obrigatório.',
-                        'email'=> 'Informe um e-mail válido.',
-                        'unique' => 'Este e-mail já está sendo utilizado.'
+                        'required'  => 'O nome é obrigatório.',
+                        'email'     => 'Informe um e-mail válido.',
+                        'unique'    => 'Este e-mail já está sendo utilizado.'
                     ]),
                 FileUpload::make('avatar')
-                    ->image()
+                    ->avatar()
+                    ->imageEditor()
                     ->directory('avatars'),
                 //DateTimePicker::make('email_verified_at'),
                 TextInput::make('password')
