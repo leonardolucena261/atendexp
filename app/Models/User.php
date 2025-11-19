@@ -5,12 +5,14 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Enums\UserStatus;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -61,4 +63,18 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Panel::class);
     }
+
+    public function getFilamentAvatarUrl(): string|null
+    {
+        //retorna a campo do banco de dados que contém o avatar (imagem)
+        if (! $this->avatar) {
+            return null;
+        }
+        // Se estiver no disco 'public'
+        // return Storage::disk('public')->url($this->avatar);
+
+        // Se estiver no disco 'private', gere uma URL temporária:
+        return Storage::disk('private')->emporaryUrl($this->avatar);
+    }
+
 }
